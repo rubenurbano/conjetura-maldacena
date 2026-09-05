@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Conjetura de Maldacena · Correspondencia AdS/CFT · Curso completo desde cero</title>
+<style>
+:root{
+  --bg:#0a0e1a; --card:#0f172a; --border:#1e3a5f; --accent:#00d4ff;
+  --green:#22c55e; --amber:#f59e0b; --red:#ef4444; --purple:#a855f7;
+  --text:#dbe7f5; --muted:#9fb6d9; --dim:#64748b;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);line-height:1.65;
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+}
+/* ---------- barra de progreso ---------- */
+#progressBar{
+  position:fixed;top:0;left:0;height:4px;width:0%;z-index:1200;
+  background:linear-gradient(90deg,var(--accent),var(--purple));
+  box-shadow:0 0 10px rgba(0,212,255,.6);transition:width .1s linear;
+}
+/* ---------- navbar ---------- */
+#topnav{
+  position:fixed;top:4px;left:0;right:0;z-index:1100;
+  background:rgba(10,14,26,.94);border-bottom:1px solid var(--border);
+  backdrop-filter:blur(8px);display:flex;align-items:center;gap:8px;padding:0 10px;
+}
+.brand{display:flex;align-items:center;gap:8px;padding:10px 6px;white-space:nowrap}
+.brand .dot{width:14px;height:14px;border-radius:50%;flex:0 0 auto;
+  background:radial-gradient(circle at 35% 35%,#7dd3fc,var(--accent) 55%,var(--purple));
+  box-shadow:0 0 10px rgba(0,212,255,.8)}
+.brand b{font-size:.9rem;color:#e8f6ff;letter-spacing:.5px}
+.brand small{display:block;font-size:.62rem;color:var(--dim);letter-spacing:1.5px;font-weight:400}
+.nav-scroll{
+  flex:1;display:flex;gap:6px;overflow-x:auto;padding:9px 4px;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch;
+}
+.nav-scroll::-webkit-scrollbar{display:none}
+.nav-btn{
+  white-space:nowrap;padding:7px 13px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--border);background:transparent;color:var(--muted);
+  font-size:.82rem;font-family:inherit;transition:all .25s ease;
+}
+.nav-btn:hover{border-color:var(--accent);color:#e8f6ff}
+.nav-btn.active{
+  background:rgba(0,212,255,.12);border-color:var(--accent);color:var(--accent);
+  box-shadow:0 0 12px rgba(0,212,255,.28);
+}
+.nav-btn.cred{border-color:var(--purple);color:#c084fc;font-weight:600}
+.nav-btn.cred.active{background:rgba(168,85,247,.15);box-shadow:0 0 12px rgba(168,85,247,.35)}
+/* ---------- layout ---------- */
+main{padding-top:74px}
+.page{display:none}
+.page.active{display:block;animation:fadeIn .45s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.wrap{max-width:1120px;margin:0 auto;padding:0 18px}
+.page-pad{padding:28px 0 64px}
+h1{font-size:clamp(1.9rem,5vw,3rem);line-height:1.15;color:#f1f7ff}
+h2{font-size:clamp(1.4rem,3.4vw,2rem);color:#f1f7ff;line-height:1.2}
+h3{color:#e8f6ff;font-size:1.06rem}
+.grad{background:linear-gradient(90deg,var(--accent),var(--purple));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+/* ---------- portada ---------- */
+.cover-wrap{
+  border-radius:12px;overflow:hidden;border:1px solid var(--border);
+  box-shadow:0 0 44px rgba(0,212,255,.14),0 8px 30px rgba(0,0,0,.5);margin-top:8px;
+}
+.coverSvg{display:block;width:100%;height:auto;font-family:'Segoe UI',system-ui,sans-serif}
+.cover-cap{font-size:.8rem;color:var(--dim);text-align:center;margin-top:8px;font-style:italic}
+/* ---------- HERO ---------- */
+.hero{text-align:center;margin-top:26px}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:999px;
+  border:1px solid var(--border);background:var(--card);color:var(--accent);
+  font-size:.78rem;letter-spacing:2px;font-weight:600;text-transform:uppercase;
+}
+.hero p.sub{font-size:clamp(1rem,2.4vw,1.25rem);color:var(--muted);margin-top:10px;font-weight:500}
+.hero p.desc{max-width:820px;margin:16px auto 0;color:#b9cbe6;font-size:1rem}
+.quote{
+  margin:26px auto 0;max-width:860px;text-align:left;
+  border-left:4px solid var(--accent);border-radius:10px;
+  background:linear-gradient(90deg,rgba(0,212,255,.09),rgba(0,212,255,0));
+  padding:18px 22px;font-size:1.12rem;font-style:italic;color:#e8f6ff;
+}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:28px}
+.metric{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 12px;text-align:center;transition:transform .25s,border-color .25s}
+.metric:hover{transform:translateY(-3px);border-color:var(--accent)}
+.metric .big{font-size:1.7rem;font-weight:800;color:var(--accent)}
+.metric .lbl{font-size:.78rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.meta-chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:24px}
+.meta-chip{
+  display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border-radius:999px;
+  background:var(--card);border:1px solid var(--border);font-size:.86rem;color:#cfe3ff;
+}
+/* ---------- secciones ---------- */
+.sec-head{display:flex;gap:16px;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap}
+.sec-icon{
+  width:58px;height:58px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+  font-size:1.7rem;border-radius:14px;background:var(--card);border:1px solid var(--border);
+  box-shadow:inset 0 0 18px rgba(0,212,255,.12);
+}
+.phase-badge{
+  display:inline-block;padding:3px 12px;border-radius:999px;font-size:.72rem;font-weight:700;
+  letter-spacing:2px;color:var(--accent);border:1px solid rgba(0,212,255,.45);background:rgba(0,212,255,.08);
+  margin-bottom:6px;
+}
+.sec-sub{color:var(--muted);font-size:.95rem;margin-top:4px}
+/* ---------- cards / grids ---------- */
+.grid{display:grid;gap:16px;margin-top:16px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;
+  transition:border-color .25s,transform .25s;
+}
+.card:hover{border-color:#2c5282}
+.concept-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.num{
+  width:34px;height:34px;flex:0 0 auto;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:.95rem;background:rgba(0,212,255,.12);color:var(--accent);
+  border:1px solid rgba(0,212,255,.4);
+}
+.num.p{background:rgba(168,85,247,.12);color:#c084fc;border-color:rgba(168,85,247,.4)}
+.num.a{background:rgba(245,158,11,.12);color:var(--amber);border-color:rgba(245,158,11,.4)}
+.num.g{background:rgba(34,197,94,.12);color:var(--green);border-color:rgba(34,197,94,.4)}
+.card p{color:#b9cbe6;font-size:.95rem}
+.card p + p{margin-top:8px}
+.card .ex{margin-top:10px}
+.hl-card{border-color:rgba(0,212,255,.55);box-shadow:0 0 24px rgba(0,212,255,.08)}
+/* ---------- callouts ---------- */
+.callout{border-radius:10px;padding:13px 16px;margin-top:12px;border:1px solid;font-size:.92rem}
+.callout .tag{display:block;font-weight:800;font-size:.72rem;letter-spacing:2px;margin-bottom:5px}
+.c-info{background:rgba(0,212,255,.07);border-color:rgba(0,212,255,.35);border-left:5px solid var(--accent)}
+.c-info .tag{color:var(--accent)}
+.c-ej{background:rgba(34,197,94,.07);border-color:rgba(34,197,94,.35);border-left:5px solid var(--green)}
+.c-ej .tag{color:var(--green)}
+.c-warn{background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.35);border-left:5px solid var(--amber)}
+.c-warn .tag{color:var(--amber)}
+.c-err{background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.35);border-left:5px solid var(--red)}
+.c-err .tag{color:var(--red)}
+.callout p{color:#c8d8ef}
+/* ---------- fórmulas ---------- */
+.formula{
+  background:#0b1226;border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:10px;padding:20px 16px;text-align:center;overflow-x:auto;
+  font-family:Cambria,'Times New Roman',Georgia,serif;font-size:clamp(1.05rem,2.6vw,1.35rem);
+  color:#e8f6ff;margin-top:12px;white-space:nowrap;
+}
+.formula em{color:var(--accent);font-style:normal}
+.formula .eq{color:var(--amber);font-weight:700;padding:0 8px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.legend span{
+  font-size:.78rem;padding:5px 11px;border-radius:999px;background:#0b1226;
+  border:1px solid var(--border);color:var(--muted);
+}
+.legend b{color:var(--accent);font-weight:700}
+/* ---------- chips ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{font-size:.8rem;padding:5px 12px;border-radius:999px;border:1px solid var(--border);background:#0b1226;color:#cfe3ff}
+.chip.c{border-color:rgba(0,212,255,.5);color:var(--accent)}
+.chip.v{border-color:rgba(168,85,247,.5);color:#c084fc}
+.chip.w{border-color:rgba(245,158,11,.5);color:var(--amber)}
+.chip.g{border-color:rgba(34,197,94,.5);color:var(--green)}
+/* ---------- tablas ---------- */
+.tbl-wrap{overflow-x:auto;margin-top:16px;border:1px solid var(--border);border-radius:12px}
+table.tbl{width:100%;border-collapse:collapse;min-width:640px;font-size:.92rem}
+.tbl th{background:#0b1226;color:var(--accent);text-align:left;padding:12px 14px;letter-spacing:1px;font-size:.8rem;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.tbl td{padding:12px 14px;border-bottom:1px solid rgba(30,58,95,.55);color:#c3d4ee;vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(0,212,255,.03)}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:700;letter-spacing:.6px;white-space:nowrap}
+.b-gray{background:rgba(100,116,139,.15);color:#94a3b8;border:1px solid #475569}
+.b-green{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.5)}
+.b-cyan{background:rgba(0,212,255,.1);color:var(--accent);border:1px solid rgba(0,212,255,.5)}
+.b-amber{background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.5)}
+.b-red{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.5)}
+.b-purple{background:rgba(168,85,247,.12);color:#c084fc;border:1px solid rgba(168,85,247,.5)}
+/* ---------- acordeones ---------- */
+.acc{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-top:10px;overflow:hidden}
+.acc-btn{
+  width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;
+  background:transparent;border:none;color:#e8f6ff;font-family:inherit;font-size:.97rem;
+  font-weight:600;text-align:left;padding:14px 16px;cursor:pointer;
+}
+.acc-btn:hover{color:var(--accent)}
+.acc-btn .chev{transition:transform .3s;color:var(--accent);flex:0 0 auto}
+.acc.open .acc-btn .chev{transform:rotate(180deg)}
+.acc-panel{max-height:0;overflow:hidden;transition:max-height .38s ease}
+.acc-inner{padding:2px 16px 16px;color:#b9cbe6;font-size:.94rem;border-top:1px dashed rgba(30,58,95,.7);padding-top:12px}
+.acc-inner p + p{margin-top:8px}
+/* ---------- tabs ---------- */
+.tabs{margin-top:16px}
+.tab-row{display:flex;gap:8px;flex-wrap:wrap}
+.tab-btn{
+  padding:9px 16px;border-radius:10px 10px 0 0;border:1px solid var(--border);border-bottom:none;
+  background:#0b1226;color:var(--muted);cursor:pointer;font-family:inherit;font-size:.88rem;font-weight:600;
+}
+.tab-btn.active{background:var(--card);color:var(--accent);border-color:rgba(0,212,255,.55)}
+.tab-panel{display:none;background:var(--card);border:1px solid var(--border);border-radius:0 12px 12px 12px;padding:22px}
+.tab-panel.active{display:block;animation:fadeIn .35s ease}
+/* ---------- comparativa / diccionario ---------- */
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch;margin-top:14px}
+.vs .col{background:#0b1226;border:1px solid var(--border);border-radius:12px;padding:16px}
+.vs .col h4{font-size:.85rem;letter-spacing:1.5px;margin-bottom:8px}
+.vs .mid{display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:var(--amber)}
+.dicc{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-top:10px}
+.dicc .side{background:#0b1226;border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:.9rem;color:#c3d4ee}
+.dicc .arrow{color:var(--amber);font-size:1.3rem;text-align:center}
+/* ---------- flujo / mapa ---------- */
+.flow{display:flex;flex-direction:column;align-items:center;gap:2px;margin-top:20px}
+.flow-node{
+  background:var(--card);border:1px solid rgba(0,212,255,.45);border-radius:999px;
+  padding:9px 24px;font-weight:700;letter-spacing:1.5px;font-size:.85rem;color:#e8f6ff;
+  box-shadow:0 0 14px rgba(0,212,255,.08);text-align:center;
+}
+.flow-node.alt{border-color:rgba(168,85,247,.55)}
+.flow-arrow{color:var(--accent);font-size:1.15rem;line-height:1;padding:2px 0}
+/* ---------- prosa ---------- */
+.prose p{color:#c3d4ee;font-size:1rem;margin-top:12px}
+.prose p:first-child{margin-top:0}
+.bigquote{
+  margin:22px 0;padding:24px;border-radius:12px;text-align:center;font-size:clamp(1.05rem,2.6vw,1.4rem);
+  font-weight:600;color:#e8f6ff;background:linear-gradient(135deg,rgba(0,212,255,.1),rgba(168,85,247,.1));
+  border:1px solid rgba(0,212,255,.4);line-height:1.5;
+}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:26px 0}
+/* ---------- mini figura ---------- */
+.fig-wrap{background:#0b1226;border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:14px}
+.fig-wrap svg{display:block;width:100%;height:auto}
+.fig-cap{font-size:.8rem;color:var(--dim);text-align:center;margin-top:8px;font-style:italic}
+/* ---------- créditos ---------- */
+.cred-card{text-align:center;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:30px 22px;margin-top:22px}
+.cred-card .author{font-size:clamp(1.6rem,4vw,2.3rem);font-weight:800;margin-top:8px}
+.cred-card .rol{color:var(--muted);letter-spacing:2px;text-transform:uppercase;font-size:.8rem}
+.latin{margin-top:20px;font-style:italic;font-size:1.2rem;color:var(--amber);letter-spacing:1px}
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--border);margin-top:20px;padding:26px 18px;text-align:center;background:#0b1020}
+footer p{font-size:.88rem;color:var(--muted);margin:4px 0}
+footer .latin{font-size:.95rem;margin-top:12px}
+/* ---------- volver arriba ---------- */
+#toTop{
+  position:fixed;bottom:22px;right:22px;width:48px;height:48px;border-radius:50%;z-index:1150;
+  background:var(--card);border:1px solid var(--accent);color:var(--accent);font-size:1.3rem;cursor:pointer;
+  opacity:0;pointer-events:none;transform:translateY(12px);transition:all .3s ease;
+  box-shadow:0 0 16px rgba(0,212,255,.3);
+}
+#toTop.show{opacity:1;pointer-events:auto;transform:none}
+#toTop:hover{background:rgba(0,212,255,.15)}
+/* ---------- responsive ---------- */
+@media(max-width:900px){.g3{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){
+  .g2,.g3{grid-template-columns:1fr}
+  .brand small{display:none}
+  .vs,.dicc{grid-template-columns:1fr}
+  .vs .mid,.dicc .arrow{transform:rotate(90deg);padding:2px 0}
+  .sec-icon{width:48px;height:48px;font-size:1.4rem}
+  .tab-btn{flex:1;text-align:center;padding:9px 8px;font-size:.78rem}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- SVG DE PORTADA: símbolo único reutilizado en HOME y CRÉDITOS -->
+<!-- ============================================================ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"
+     xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<symbol id="coverArt" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="bgG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d1630"/><stop offset="1" stop-color="#0a0e1a"/>
+    </linearGradient>
+    <radialGradient id="haloG" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0.5" stop-color="rgba(0,212,255,0.13)"/><stop offset="1" stop-color="rgba(0,212,255,0)"/>
+    </radialGradient>
+    <radialGradient id="diskG" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#121f42"/><stop offset="0.75" stop-color="#0d1730"/><stop offset="1" stop-color="#0a1122"/>
+    </radialGradient>
+    <linearGradient id="accG" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f59e0b"/><stop offset="1" stop-color="#ef4444"/>
+    </linearGradient>
+    <linearGradient id="uvG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#00d4ff"/><stop offset="1" stop-color="#a855f7"/>
+    </linearGradient>
+    <pattern id="gridP" width="80" height="80" patternUnits="userSpaceOnUse">
+      <path d="M80 0H0V80" fill="none" stroke="#1e3a5f" stroke-width="1" opacity="0.16"/>
+    </pattern>
+    <filter id="gl" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <path id="rimCW"  d="M530 200 a300 300 0 1 1 -0.1 0"/>
+    <path id="rimCCW" d="M530 200 a300 300 0 1 0 0.1 0"/>
+    <path id="h1" d="M530 200 Q614 354 790 350"/>
+    <path id="h2" d="M790 350 Q699 500 790 650"/>
+    <path id="h3" d="M790 650 Q614 646 530 800"/>
+    <path id="h4" d="M530 800 Q446 646 270 650"/>
+    <path id="h5" d="M270 650 Q361 500 270 350"/>
+    <path id="h6" d="M270 350 Q446 354 530 200"/>
+    <path id="dg1" d="M530 200 Q560 500 530 800"/>
+    <path id="dg2" d="M790 350 Q530 460 270 650"/>
+    <path id="dg3" d="M790 650 Q530 540 270 350"/>
+  </defs>
+
+  <g font-family="'Segoe UI',system-ui,-apple-system,sans-serif">
+    <rect width="1600" height="900" fill="url(#bgG)"/>
+    <rect width="1600" height="900" fill="url(#gridP)"/>
+
+    <!-- estrellas -->
+    <circle cx="90"  cy="120" r="2"   fill="#7dd3fc"><animate attributeName="opacity" values=".15;.85;.15" dur="3.4s" repeatCount="indefinite"/></circle>
+    <circle cx="250" cy="68"  r="1.5" fill="#7dd3fc"><animate attributeName="opacity" values=".8;.15;.8" dur="4.2s" repeatCount="indefinite"/></circle>
+    <circle cx="1365" cy="66" r="2"   fill="#7dd3fc"><animate attributeName="opacity" values=".2;.9;.2" dur="5s" repeatCount="indefinite"/></circle>
+    <circle cx="1545" cy="150" r="1.5" fill="#7dd3fc"><animate attributeName="opacity" values=".85;.2;.85" dur="3.8s" repeatCount="indefinite"/></circle>
+    <circle cx="1500" cy="770" r="2"  fill="#7dd3fc"><animate attributeName="opacity" values=".2;.8;.2" dur="4.6s" repeatCount="indefinite"/></circle>
+    <circle cx="172" cy="858" r="1.6" fill="#7dd3fc"><animate attributeName="opacity" values=".7;.15;.7" dur="3.2s" repeatCount="indefinite"/></circle>
+
+    <!-- títulos -->
+    <text x="800" y="72" text-anchor="middle" font-size="46" font-weight="800" letter-spacing="4" fill="#e8f6ff" filter="url(#gl)">CORRESPONDENCIA AdS/CFT</text>
+    <text x="800" y="108" text-anchor="middle" font-size="20" fill="#7dd3fc">Gravedad en 5 dimensiones ≡ Teoría cuántica de campos en 4 dimensiones</text>
+
+    <!-- barra UV / IR : coordenada radial = escala de energía -->
+    <g>
+      <text x="110" y="163" text-anchor="middle" font-size="15" letter-spacing="2" fill="#e2e8f0">ESCALA DE ENERGÍA</text>
+      <text x="110" y="193" text-anchor="middle" font-size="13" fill="#00d4ff">UV · ALTA ENERGÍA</text>
+      <line x1="110" y1="205" x2="110" y2="778" stroke="url(#uvG)" stroke-width="4"/>
+      <polygon points="101,774 119,774 110,795" fill="#a855f7"/>
+      <text x="110" y="822" text-anchor="middle" font-size="13" fill="#a855f7">IR · BAJA ENERGÍA</text>
+      <text transform="rotate(-90 60 495)" x="60" y="495" text-anchor="middle" font-size="13" letter-spacing="3" fill="#64748b">COORDENADA RADIAL z</text>
+      <circle r="5" fill="#00d4ff" filter="url(#gl)">
+        <animateMotion path="M110 208 L110 774" dur="3.5s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+
+    <!-- halo + disco AdS -->
+    <circle cx="530" cy="500" r="360" fill="url(#haloG)"/>
+    <circle cx="530" cy="500" r="300" fill="url(#diskG)"/>
+
+    <text x="530" y="176" text-anchor="middle" font-size="16" letter-spacing="2" fill="#00d4ff">FRONTERA · AQUÍ VIVE LA CFT (4D)</text>
+    <text x="585" y="250" font-size="13" fill="#7dd3fc">z → 0 (frontera)</text>
+    <text x="292" y="505" font-size="13" fill="#64748b">z grande → interior</text>
+
+    <!-- red de entrelazamiento: geodésicas / superficies de Ryu-Takayanagi -->
+    <g fill="none" stroke="#a855f7" stroke-width="2">
+      <use xlink:href="#h1" href="#h1"><animate attributeName="opacity" values="0.2;0.95;0.2" dur="6s" begin="0s"  repeatCount="indefinite"/></use>
+      <use xlink:href="#h2" href="#h2"><animate attributeName="opacity" values="0.2;0.95;0.2" dur="6s" begin="1s"  repeatCount="indefinite"/></use>
+      <use xlink:href="#h3" href="#h3"><animate attributeName="opacity" values="0.2;0.95;0.2" dur="6s" begin="2s"  repeatCount="indefinite"/></use>
+      <use xlink:href="#h4" href="#h4"><animate attributeName="opacity" values="0.2;0.95;0.2" dur="6s" begin="3s"  repeatCount="indefinite"/></use>
+      <use xlink:href="#h5" href="#h5"><animate attributeName="opacity" values="0.2;0.95;0.2" dur="6s" begin="4s"  repeatCount="indefinite"/></use>
+      <use xlink:href="#h6" href="#h6"><animate attributeName="opacity" values="0.2;0.95;0.2" dur="6s" begin="5s"  repeatCount="indefinite"/></use>
+    </g>
+    <g fill="none" stroke="#38bdf8" stroke-width="1.6" stroke-dasharray="5 7" opacity="0.55">
+      <use xlink:href="#dg1" href="#dg1"><animate attributeName="stroke-dashoffset" from="0" to="-48" dur="3s" repeatCount="indefinite"/></use>
+      <use xlink:href="#dg2" href="#dg2"><animate attributeName="stroke-dashoffset" from="0" to="-48" dur="3.6s" repeatCount="indefinite"/></use>
+      <use xlink:href="#dg3" href="#dg3"><animate attributeName="stroke-dashoffset" from="0" to="-48" dur="4.2s" repeatCount="indefinite"/></use>
+    </g>
+
+    <!-- pulsos de información viajando por la red -->
+    <circle r="5" fill="#00d4ff" filter="url(#gl)"><animateMotion dur="5s" repeatCount="indefinite"><mpath xlink:href="#dg1" href="#dg1"/></animateMotion></circle>
+    <circle r="5" fill="#22c55e" filter="url(#gl)"><animateMotion dur="6.5s" begin="-2s" repeatCount="indefinite"><mpath xlink:href="#dg2" href="#dg2"/></animateMotion></circle>
+    <circle r="5" fill="#f59e0b" filter="url(#gl)"><animateMotion dur="7.5s" begin="-4s" repeatCount="indefinite"><mpath xlink:href="#dg3" href="#dg3"/></animateMotion></circle>
+    <circle r="4" fill="#c084fc" filter="url(#gl)"><animateMotion dur="4s" begin="-1s" repeatCount="indefinite"><mpath xlink:href="#h2" href="#h2"/></animateMotion></circle>
+    <circle r="4" fill="#00d4ff" filter="url(#gl)"><animateMotion dur="4.5s" begin="-2.5s" repeatCount="indefinite"><mpath xlink:href="#h5" href="#h5"/></animateMotion></circle>
+
+    <!-- materia cayendo hacia el agujero negro -->
+    <circle r="4" fill="#fbbf24" filter="url(#gl)">
+      <animateMotion path="M530 200 C700 300 660 430 560 480 C545 492 536 497 530 500" dur="7s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.85;1" dur="7s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- agujero negro central -->
+    <g>
+      <circle cx="530" cy="500" r="42" fill="none" stroke="#f59e0b" stroke-width="2">
+        <animate attributeName="r" values="42;80" dur="3s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.8;0" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="530" cy="500" r="42" fill="none" stroke="#f59e0b" stroke-width="1.5">
+        <animate attributeName="r" values="42;80" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.8;0" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+      </circle>
+      <g>
+        <ellipse cx="530" cy="500" rx="88"  ry="24" fill="none" stroke="url(#accG)" stroke-width="5"/>
+        <ellipse cx="530" cy="500" rx="118" ry="33" fill="none" stroke="url(#accG)" stroke-width="2" opacity="0.5"/>
+        <animateTransform attributeName="transform" type="rotate" from="0 530 500" to="360 530 500" dur="11s" repeatCount="indefinite"/>
+      </g>
+      <circle cx="530" cy="500" r="42" fill="#04060d" stroke="#f59e0b" stroke-width="2.5"/>
+      <text x="530" y="600" text-anchor="middle" font-size="15" fill="#f59e0b">AGUJERO NEGRO ↔ ESTADO TÉRMICO DE LA CFT</text>
+    </g>
+
+    <!-- anillo frontera + grados de libertad de la CFT orbitando -->
+    <circle cx="530" cy="500" r="300" fill="none" stroke="#00d4ff" stroke-width="3" filter="url(#gl)"/>
+    <circle r="7" fill="#00d4ff" filter="url(#gl)"><animateMotion dur="22s" begin="-3s"  repeatCount="indefinite"><mpath xlink:href="#rimCW"  href="#rimCW"/></animateMotion></circle>
+    <circle r="6" fill="#22c55e" filter="url(#gl)"><animateMotion dur="30s" begin="-12s" repeatCount="indefinite"><mpath xlink:href="#rimCW"  href="#rimCW"/></animateMotion></circle>
+    <circle r="6" fill="#f59e0b" filter="url(#gl)"><animateMotion dur="26s" begin="-6s"  repeatCount="indefinite"><mpath xlink:href="#rimCCW" href="#rimCCW"/></animateMotion></circle>
+    <circle r="7" fill="#a855f7" filter="url(#gl)"><animateMotion dur="34s" begin="-20s" repeatCount="indefinite"><mpath xlink:href="#rimCCW" href="#rimCCW"/></animateMotion></circle>
+
+    <text x="530" y="772" text-anchor="middle" font-size="15" letter-spacing="2" fill="#a855f7">INTERIOR (BULK) · GRAVEDAD 5D</text>
+
+    <!-- codificación holográfica: frontera → panel dual -->
+    <path d="M838 500 H1024" stroke="#a855f7" stroke-width="2" stroke-dasharray="8 8" opacity="0.75">
+      <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.6s" repeatCount="indefinite"/>
+    </path>
+    <text x="931" y="484" text-anchor="middle" font-size="13" letter-spacing="1" fill="#a855f7">CODIFICACIÓN HOLOGRÁFICA</text>
+
+    <!-- panel derecho: el diccionario de la dualidad -->
+    <g>
+      <text x="1280" y="168" text-anchor="middle" font-size="17" letter-spacing="4" fill="#e2e8f0">EL DICCIONARIO DE LA DUALIDAD</text>
+
+      <rect x="1030" y="192" width="500" height="118" rx="12" fill="#0f172a" stroke="#00d4ff" stroke-width="2"/>
+      <text x="1060" y="247" font-size="36" font-weight="700" fill="#00d4ff">AdS₅ × S⁵</text>
+      <text x="1060" y="283" font-size="16" fill="#9fb6d9">Teoría de cuerdas Tipo IIB · GRAVEDAD · 10D</text>
+      <g stroke="#00d4ff" fill="none" stroke-width="1.6" opacity="0.9">
+        <circle cx="1465" cy="251" r="26"/>
+        <ellipse cx="1465" cy="251" rx="26" ry="9"/>
+        <ellipse cx="1465" cy="251" rx="9" ry="26"/>
+        <animateTransform attributeName="transform" type="rotate" from="0 1465 251" to="360 1465 251" dur="14s" repeatCount="indefinite"/>
+      </g>
+
+      <line x1="1280" y1="318" x2="1280" y2="436" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4 7">
+        <animate attributeName="stroke-dashoffset" from="0" to="-44" dur="2.4s" repeatCount="indefinite"/>
+      </line>
+      <circle cx="1280" cy="377" r="30" fill="#0a0e1a" stroke="#f59e0b" stroke-width="2"/>
+      <text x="1280" y="388" text-anchor="middle" font-size="30" fill="#f59e0b">↔<animate attributeName="opacity" values="0.55;1;0.55" dur="2.6s" repeatCount="indefinite"/></text>
+      <circle r="5" fill="#f59e0b" filter="url(#gl)">
+        <animateMotion path="M1280 320 L1280 434 L1280 320" dur="4s" repeatCount="indefinite"/>
+      </circle>
+
+      <rect x="1030" y="444" width="500" height="118" rx="12" fill="#0f172a" stroke="#a855f7" stroke-width="2"/>
+      <text x="1060" y="499" font-size="34" font-weight="700" fill="#a855f7">N=4 SU(N) SYM</text>
+      <text x="1060" y="535" font-size="16" fill="#9fb6d9">CFT conforme · SIN GRAVEDAD · 4D</text>
+      <g>
+        <line x1="1415" y1="505" x2="1515" y2="505" stroke="#a855f7" stroke-width="3"/>
+        <circle r="5" fill="#00d4ff"><animateMotion path="M1415 505 L1515 505 L1415 505" dur="3s" repeatCount="indefinite"/></circle>
+        <circle r="5" fill="#22c55e"><animateMotion path="M1415 505 L1515 505 L1415 505" dur="4.6s" begin="-2s" repeatCount="indefinite"/></circle>
+      </g>
+
+      <text x="1280" y="642" text-anchor="middle" font-size="46" font-weight="700" filter="url(#gl)"><tspan fill="#00d4ff">Z</tspan><tspan font-size="24" dy="14" fill="#7dd3fc">gravedad</tspan><tspan dy="-14" fill="#f59e0b"> = </tspan><tspan fill="#a855f7">Z</tspan><tspan font-size="24" dy="14" fill="#c084fc">CFT</tspan><animate attributeName="opacity" values="0.85;1;0.85" dur="3.2s" repeatCount="indefinite"/></text>
+      <text x="1280" y="686" text-anchor="middle" font-size="16" fill="#9fb6d9">Misma física en dos lenguajes: diccionario exacto operador ↔ campo</text>
+    </g>
+
+    <text x="800" y="872" text-anchor="middle" font-size="16" fill="#64748b" font-style="italic">J. Maldacena · 1997 — «Una teoría de gravedad puede ser equivalente a una teoría de campos sin gravedad»</text>
+  </g>
+</symbol>
+</svg>
+
+<div id="progressBar"></div>
+
+<!-- ================= NAVBAR ================= -->
+<nav id="topnav" aria-label="Navegación principal">
+  <div class="brand"><span class="dot"></span><span><b>AdS/CFT</b><small>CURSO MALDACENA</small></span></div>
+  <div class="nav-scroll" id="navScroll">
+    <button class="nav-btn active" data-nav="home">⌂ INICIO</button>
+    <button class="nav-btn" data-nav="fase1">FASE 1 · Cimientos</button>
+    <button class="nav-btn" data-nav="fase2">FASE 2 · Cuerdas</button>
+    <button class="nav-btn" data-nav="fase3">FASE 3 · Holografía</button>
+    <button class="nav-btn" data-nav="fase4">FASE 4 · 1997</button>
+    <button class="nav-btn" data-nav="fase5">FASE 5 · Idea central</button>
+    <button class="nav-btn" data-nav="fase6">FASE 6 · El ejemplo</button>
+    <button class="nav-btn" data-nav="fase7">FASE 7 · Dimensión extra</button>
+    <button class="nav-btn" data-nav="fase8">FASE 8 · Gravedad↔Cuántica</button>
+    <button class="nav-btn" data-nav="fase9">FASE 9 · Agujeros negros</button>
+    <button class="nav-btn" data-nav="fase10">FASE 10 · Fuerte-débil</button>
+    <button class="nav-btn" data-nav="fase11">FASE 11 · Matemáticas</button>
+    <button class="nav-btn" data-nav="fase12">FASE 12 · Fórmula GKP</button>
+    <button class="nav-btn" data-nav="fase13">FASE 13 · Entender holografía</button>
+    <button class="nav-btn" data-nav="fase14">FASE 14 · Entrelazamiento</button>
+    <button class="nav-btn" data-nav="fase15">FASE 15 · Reconstrucción</button>
+    <button class="nav-btn" data-nav="fase16">FASE 16 · Qué sabemos</button>
+    <button class="nav-btn cred" data-nav="creditos">✦ CRÉDITOS</button>
+  </div>
+</nav>
+
+<main>
+<!-- ==================== HOME ==================== -->
+<section class="page active" id="home">
+  <div class="wrap page-pad">
+    <div class="cover-wrap">
+      <svg class="coverSvg" viewBox="0 0 1600 900" role="img"
+           aria-label="Portada animada: disco de Anti-de Sitter con la red de entrelazamiento, agujero negro central y el diccionario de la dualidad AdS5 por S5 equivalente a N igual 4 Super-Yang-Mills">
+        <use href="#coverArt" xlink:href="#coverArt"/>
+      </svg>
+    </div>
+    <p class="cover-cap">Portada animada — el interior gravitatorio (bulk) codificado en la frontera: información, entrelazamiento y el diccionario de la dualidad.</p>
+
+    <div class="hero">
+      <span class="hero-badge">📖 Curso completo desde cero · Física teórica</span>
+      <h1>La Conjetura de <span class="grad">Maldacena</span></h1>
+      <p class="sub">Correspondencia AdS/CFT — Gravedad, holografía y teoría cuántica de campos</p>
+      <p class="desc">Un recorrido guiado en 16 fases: desde los cimientos de la física clásica y cuántica hasta la frontera de la investigación actual, para entender cómo <strong>una teoría de gravedad en un espacio Anti-de Sitter de 5 dimensiones puede ser exactamente equivalente a una teoría cuántica de campos conforme, sin gravedad, definida en su frontera de 4 dimensiones</strong>.</p>
+
+      <blockquote class="quote">«Si no puedes explicarlo de forma sencilla, es que no lo entiendes lo suficientemente bien.»</blockquote>
+
+      <div class="metrics">
+        <div class="metric"><div class="big">16</div><div class="lbl">Fases guiadas</div></div>
+        <div class="metric"><div class="big">1997</div><div class="lbl">Artículo de Maldacena</div></div>
+        <div class="metric"><div class="big">5 ↔ 4</div><div class="lbl">Dimensiones duales</div></div>
+        <div class="metric"><div class="big">10D</div><div class="lbl">Teoría Tipo IIB</div></div>
+      </div>
+
+      <div class="meta-chips">
+        <span class="meta-chip">📅 Fecha: <b>&nbsp;05/09/2026</b></span>
+        <span class="meta-chip">⏰ Hora: <b>&nbsp;05:48:08</b></span>
+        <span class="meta-chip">👨‍💻 Autor: <b>&nbsp;Rubén Sbarsky</b></span>
+        <span class="meta-chip">🎓 Fines educativos y de divulgación</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FASE 1 ==================== -->
+<section class="page" id="fase1">
+  <div class="wrap page-pad">
+    <header class="sec-head">
+      <div class="sec-icon">🧱</div>
+      <div>
+        <span class="phase-badge">FASE 1 — PREPARACIÓN</span>
+        <h2>Los cimientos</h2>
+        <p class="sec-sub">Los once conceptos que necesitas dominar antes de abordar la conjetura.</p>
+      </div>
+    </header>
+
+    <div class="grid g2">
+      <article class="card">
+        <div class="concept-top"><span class="num">1</span><h3>Física clásica</h3></div>
+        <p>Imagina el universo como una máquina de relojería: si conoces posición y velocidad exactas de cada pieza, puedes predecir el futuro con certeza total. La física clásica (Newton, Maxwell, Einstein) asume que las magnitudes físicas tienen valores definidos en todo momento y que el futuro está determinado por el presente.</p>
+        <div class="callout c-ej"><span class="tag">EJEMPLO</span><p>Lanzas una piedra y calculas exactamente dónde caerá.</p></div>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">2</span><h3>Relatividad especial</h3></div>
+        <p>Vas en un tren rápido, lanzas una pelota: su velocidad para ti y para alguien en el andén difiere según la suma de velocidades normal. Pero con la luz esto no ocurre: todos miden la misma velocidad de la luz. De ahí surgen: dilatación del tiempo, contracción de longitudes, E=mc², y la fusión de espacio y tiempo en un único objeto: el espacio-tiempo.</p>
+        <div class="callout c-ej"><span class="tag">EJEMPLO</span><p>Los relojes de los satélites GPS se atrasan por su velocidad; hay que corregirlo o el GPS fallaría por kilómetros.</p></div>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">3</span><h3>Relatividad general</h3></div>
+        <p>Una sábana elástica se hunde bajo una bola pesada; las canicas cercanas curvan su trayectoria porque el espacio mismo está deformado, no porque exista una fuerza que «tire». La masa y la energía curvan el espacio-tiempo, y los objetos siguen las trayectorias más rectas posibles dentro de esa curvatura (geodésicas).</p>
+        <div class="callout c-ej"><span class="tag">EJEMPLO</span><p>La luz de una estrella se desvía al pasar cerca del Sol (confirmado en el eclipse de 1919).</p></div>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">4</span><h3>Mecánica cuántica</h3></div>
+        <p>Una moneda en el aire no es «cara» ni «cruz»: es una superposición de ambas hasta que se mide. La mecánica cuántica describe partículas a escalas diminutas con: superposición, probabilidad (no certeza), cuantización (valores discretos permitidos) e incertidumbre (no puedes conocer todo con precisión simultánea).</p>
+        <div class="callout c-ej"><span class="tag">EJEMPLO</span><p>El electrón del átomo de hidrógeno solo puede tener ciertos niveles de energía discretos; por eso los átomos emiten colores de luz específicos.</p></div>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">5</span><h3>Campo</h3></div>
+        <p>Un mapa de temperaturas asigna un número a cada punto de un país. Un campo físico asigna un valor a cada punto del espacio-tiempo. El campo electromagnético es el ejemplo clásico. En física moderna, todo —electrones, fotones, quarks— es, en el fondo, un campo.</p>
+        <div class="callout c-ej"><span class="tag">EJEMPLO</span><p>Una radio detecta el campo electromagnético oscilando en la antena.</p></div>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">6</span><h3>Teoría cuántica de campos (QFT)</h3></div>
+        <p>Es la fusión de mecánica cuántica + campos: en vez de cuantizar partículas individuales, se cuantizan campos que llenan todo el espacio. Es el marco más exitoso de la física para tres de las cuatro fuerzas fundamentales.</p>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">7</span><h3>Partícula en QFT</h3></div>
+        <p>Un estanque en reposo (campo = cero en todas partes); una partícula es una pequeña onda localizada viajando por su superficie: una excitación del campo, no un objeto aparte.</p>
+        <div class="callout c-ej"><span class="tag">EJEMPLO</span><p>El fotón es un cuanto (unidad mínima de excitación) del campo electromagnético.</p></div>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">8</span><h3>Cuantizar una teoría</h3></div>
+        <p>Es el proceso matemático de tomar una teoría clásica (como el electromagnetismo de Maxwell) y aplicarle las reglas cuánticas, obteniendo su versión discreta y probabilística.</p>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">9</span><h3>Simetría</h3></div>
+        <p>Un círculo rotado cualquier ángulo se ve igual: eso es simetría. En física, es una transformación que deja invariantes las leyes del sistema. Por el teorema de Noether, cada simetría continua implica una ley de conservación (simetría temporal → conservación de energía; simetría espacial → conservación del momento).</p>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">10</span><h3>Teoría gauge</h3></div>
+        <p>Una teoría de campos con simetría «de calibre»: transformaciones locales (distintas en cada punto) que no cambian la física observable. El electromagnetismo y las fuerzas nucleares fuerte y débil son teorías gauge. El «Super-Yang-Mills» que veremos en la conjetura es una teoría gauge.</p>
+      </article>
+
+      <article class="card hl-card" style="grid-column:1/-1">
+        <div class="concept-top"><span class="num a">11</span><h3>Gravedad cuántica: el problema</h3></div>
+        <p>La relatividad general (curva, continua) y la mecánica cuántica (discreta, probabilística) son matemáticamente incompatibles. Al intentar cuantizar la gravedad con técnicas normales de QFT aparecen infinitos que no se pueden eliminar («no renormalizable»). Se necesita una teoría que unifique ambas de forma consistente: eso es la gravedad cuántica.</p>
+        <div class="callout c-info"><span class="tag">INFO</span><p>La teoría de cuerdas es el intento más desarrollado, y es la cuna de la conjetura de Maldacena. → Continúa en la FASE 2.</p></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FASE 2 ==================== -->
+<section class="page" id="fase2">
+  <div class="wrap page-pad">
+    <header class="sec-head">
+      <div class="sec-icon">🧵</div>
+      <div>
+        <span class="phase-badge">FASE 2</span>
+        <h2>Teoría de cuerdas</h2>
+        <p class="sec-sub">De partículas puntuales a filamentos de energía vibrantes: la cuna de la conjetura.</p>
+      </div>
+    </header>
+
+    <div class="grid g2">
+      <article class="card">
+        <div class="concept-top"><span class="num">1</span><h3>Qué problema intenta resolver</h3></div>
+        <p>Busca una teoría de gravedad cuántica consistente (sin los infinitos problemáticos) que además unifique todas las fuerzas de la naturaleza.</p>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">2</span><h3>Qué es una cuerda</h3></div>
+        <p>En vez de partículas puntuales (sin tamaño), la teoría de cuerdas propone que los objetos fundamentales son diminutos filamentos de energía («cuerdas») de una longitud extremadamente pequeña (~longitud de Planck, 10⁻³⁵ m).</p>
+        <div class="callout c-ej"><span class="tag">ANALOGÍA</span><p>Como la cuerda de un violín, cada modo de vibración distinto suena diferente. Aquí, cada modo de vibración de la cuerda corresponde a una partícula diferente.</p></div>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">3</span><h3>Cuerda abierta vs. cerrada</h3></div>
+        <p>Una cuerda abierta tiene dos extremos libres (como un segmento). Una cuerda cerrada forma un lazo sin extremos (como una goma elástica). Esta distinción importa mucho: las cuerdas abiertas pueden tener sus extremos «pegados» a superficies especiales (D-branas, ver punto 8); las cuerdas cerradas se mueven libremente por todo el espacio.</p>
+        <div class="chips"><span class="chip c">Abierta: dos extremos</span><span class="chip v">Cerrada: lazo sin extremos</span></div>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">4</span><h3>Partículas como modos de vibración</h3></div>
+        <p>Igual que una cuerda de guitarra puede vibrar en distintos armónicos (cada uno con una frecuencia/energía distinta), una cuerda fundamental vibra de distintas formas, y cada modo de vibración se percibe como una partícula distinta, con su masa y sus propiedades características.</p>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num g">5</span><h3>El gravitón</h3></div>
+        <p>Entre los modos de vibración de las cuerdas cerradas, aparece siempre uno con las propiedades exactas que se esperan del gravitón: la partícula (hipotética, aún no detectada directamente) que transmitiría la fuerza gravitatoria en una descripción cuántica.</p>
+        <div class="callout c-info"><span class="tag">RESULTADO NOTABLE</span><p>La teoría de cuerdas predice la gravedad de forma automática, no la introduce a mano.</p></div>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">6</span><h3>Dimensiones adicionales</h3></div>
+        <p>La consistencia matemática de la teoría de cuerdas (que las probabilidades cuánticas den siempre resultados sensatos, sin infinitos ni valores negativos) exige que el espacio-tiempo tenga más dimensiones de las 4 que observamos (3 espaciales + 1 temporal).</p>
+        <div class="chips"><span class="chip w">Cuerdas bosónicas: 26 dimensiones</span><span class="chip c">Superstring (con supersimetría): 10 dimensiones</span></div>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">7</span><h3>Compactificación</h3></div>
+        <p>Si hay más dimensiones, ¿por qué no las vemos? La idea es que esas dimensiones extra están «enrolladas» en formas geométricas extremadamente pequeñas, imperceptibles a nuestra escala.</p>
+        <div class="callout c-ej"><span class="tag">ANALOGÍA</span><p>Una manguera de jardín vista de lejos parece una línea unidimensional; de cerca, ves que tiene una segunda dimensión enrollada en círculo (su circunferencia). Las dimensiones extra de la teoría de cuerdas están «enrolladas» de forma análoga, en espacios tan diminutos que no podemos detectarlos directamente.</p></div>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">8</span><h3>D-brana</h3></div>
+        <p>Una D-brana («Dirichlet brane») es un objeto extendido en el espacio (puede tener 0, 1, 2... hasta 9 dimensiones espaciales) sobre el cual pueden terminar los extremos de las cuerdas abiertas.</p>
+        <div class="callout c-ej"><span class="tag">ANALOGÍA</span><p>Imagina una lámina de goma flotando en el espacio; las cuerdas abiertas son como bandas elásticas cuyos extremos están pegados a esa lámina, mientras que las cuerdas cerradas (que incluyen el gravitón) pueden viajar libremente por todo el espacio, dentro o fuera de la lámina.</p></div>
+      </article>
+
+      <article class="card" style="grid-column:1/-1">
+        <div class="concept-top"><span class="num">9</span><h3>Una teoría «viviendo sobre» una brana</h3></div>
+        <p>Los modos de vibración de las cuerdas abiertas atadas a una D-brana se comportan, vistos desde la propia brana, como una teoría cuántica de campos ordinaria definida solo en las dimensiones de esa brana (sin gravedad dinámica propia dentro de esa teoría). Es decir: la brana «contiene» su propia física, como un mundo dentro del mundo mayor.</p>
+      </article>
+    </div>
+
+    <article class="card hl-card" style="margin-top:16px">
+      <div class="concept-top"><span class="num a">10</span><h3>Por qué las D-branas son clave para Maldacena</h3></div>
+      <p>Aquí está la semilla de toda la conjetura: si apilas muchas D-branas juntas, tienes <strong>dos formas de describir el mismo objeto físico</strong>:</p>
+      <div class="vs">
+        <div class="col">
+          <h4 style="color:var(--accent)">DESCRIPCIÓN A (ABIERTA)</h4>
+          <p>Las cuerdas abiertas atadas a las branas forman una <strong>teoría gauge</strong> (tipo Yang-Mills) viviendo sobre ellas.</p>
+        </div>
+        <div class="mid">⇄</div>
+        <div class="col">
+          <h4 style="color:#c084fc">DESCRIPCIÓN B (CERRADA)</h4>
+          <p>Un número muy grande de branas apiladas curva el espacio-tiempo a su alrededor, como una masa muy concentrada, produciendo una <strong>geometría gravitatoria</strong> (un agujero negro extendido, esencialmente).</p>
+        </div>
+      </div>
+      <div class="callout c-info"><span class="tag">LA PREGUNTA FUNDACIONAL</span><p>Maldacena se preguntó: si ambas descripciones describen el mismo sistema físico de branas, ¿no serán la misma física vista desde dos ángulos distintos? Esa pregunta es, literalmente, el origen de AdS/CFT.</p></div>
+    </article>
+  </div>
+</section>
+
+<!-- ==================== FASE 3 ==================== -->
+<section class="page" id="fase3">
+  <div class="wrap page-pad">
+    <header class="sec-head">
+      <div class="sec-icon">🪞</div>
+      <div>
+        <span class="phase-badge">FASE 3</span>
+        <h2>El principio holográfico</h2>
+        <p class="sec-sub">La información de un volumen, codificada en su frontera.</p>
+      </div>
+    </header>
+
+    <div class="grid g2">
+      <article class="card" style="grid-column:1/-1">
+        <div class="concept-top"><span class="num a">1</span><h3>Qué significa «holográfico» en física</h3></div>
+        <div class="callout c-warn"><span class="tag">⚠ AVISO IMPORTANTE</span><p>Esto NO es la metáfora del holograma óptico (esas tarjetas que cambian de imagen según el ángulo). El principio holográfico físico es una afirmación mucho más profunda y literal sobre cómo se codifica la información en el universo.</p></div>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">2</span><h3>Información de un volumen en una superficie de menor dimensión</h3></div>
+        <p>La idea central: toda la información física contenida en una región del espacio (un volumen, 3D) podría, en principio, describirse completamente mediante grados de libertad definidos únicamente en la frontera de esa región (una superficie, 2D) — sin perder nada.</p>
+        <div class="chips"><span class="chip c">Volumen 3D</span><span class="chip">→ codificado en →</span><span class="chip v">Frontera 2D</span></div>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">3</span><h3>Relación con la entropía de agujeros negros</h3></div>
+        <p>La entropía mide, a grandes rasgos, la cantidad de información/desorden posible en un sistema. Para la mayoría de sistemas físicos, la entropía crece con el volumen (más espacio → más formas posibles de organizar la materia dentro). Pero los agujeros negros rompen este patrón.</p>
+      </article>
+
+      <article class="card hl-card" style="grid-column:1/-1">
+        <div class="concept-top"><span class="num">4</span><h3>La fórmula de Bekenstein-Hawking: área, no volumen</h3></div>
+        <p>Bekenstein y Hawking demostraron que la entropía de un agujero negro es proporcional al <strong>área</strong> de su horizonte de sucesos, no a su volumen:</p>
+        <div class="formula">S <span class="eq">=</span> (A · k<sub>B</sub> · c³) / (4 · G · ħ)</div>
+        <div class="legend">
+          <span><b>S</b> = entropía</span><span><b>A</b> = área del horizonte</span><span><b>k<sub>B</sub></b> = constante de Boltzmann</span>
+          <span><b>c</b> = velocidad de la luz</span><span><b>G</b> = constante gravitatoria</span><span><b>ħ</b> = constante de Planck reducida</span>
+        </div>
+        <div class="callout c-info"><span class="tag">INFO</span><p>Esto es extrañísimo: sugiere que la máxima información que puede caber en un volumen de espacio está limitada por el área de su frontera, no por su volumen interior.</p></div>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">5</span><h3>Aporte de 't Hooft</h3></div>
+        <p>Gerard 't Hooft propuso (1993) que este comportamiento no es exclusivo de los agujeros negros: quizás cualquier región del espacio con gravedad tiene su información codificable en su frontera, como principio general de la naturaleza. Lo llamó <strong>principio holográfico</strong>.</p>
+      </article>
+
+      <article class="card">
+        <div class="concept-top"><span class="num">6</span><h3>Aporte de Susskind</h3></div>
+        <p>Leonard Susskind (1995) formalizó y popularizó la idea dentro del contexto de la teoría de cuerdas, mostrando cómo podía encajar de forma consistente con las cuerdas y las D-branas.</p>
+      </article>
+
+      <article class="card" style="grid-column:1/-1">
+        <div class="concept-top"><span class="num g">7</span><h3>Hacia una teoría sin gravedad equivalente</h3></div>
+        <p>Si toda la información de una región gravitatoria vive en su frontera, entonces quizás existe una teoría física completa, definida solo en esa frontera, <strong>sin gravedad</strong>, que contiene exactamente la misma información y describe exactamente la misma física que la teoría gravitatoria del interior. Esta idea —dos descripciones, una con gravedad y una dimensión extra, otra sin gravedad y una dimensión menos— es precisamente lo que Maldacena hizo concreto y calculable en 1997.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FASE 4 ==================== -->
+<section class="page" id="fase4">
+  <div class="wrap page-pad">
+    <header class="sec-head">
+      <div class="sec-icon">📜</div>
+      <div>
+        <span class="phase-badge">FASE 4</span>
+        <h2>El nacimiento de la conjetura</h2>
+        <p class="sec-sub">Juan Maldacena, 1997: la pregunta sobre las D-branas se convierte en la dualidad más famosa de la física.</p>
+      </div>
+    </header>
+
+    <div class="grid g2">
+      <article class="card">
+        <h3>🇦🇷 Juan Maldacena y 1997</h3>
+        <p>Juan Maldacena, físico argentino, publicó en 1997 un artículo que se convirtió en uno de los más citados de la historia de la física teórica. Estudiando sistemas de D-branas apiladas (como vimos en la Fase 2, punto 10) desde sus dos descripciones posibles, propuso que estas no son aproximaciones una de la otra: son <strong>exactamente equivalentes</strong>, la misma física descrita en dos lenguajes distintos.</p>
+      </article>
+
+      <article class="card">
+        <h3>🌀 AdS: Anti-de Sitter</h3>
+        <p>Es un tipo de espacio-tiempo con <strong>curvatura negativa constante</strong> (se curva «hacia afuera» en todas direcciones, como una silla de montar generalizada), y que además es una solución de las ecuaciones de Einstein con una constante cosmológica negativa. Tiene una propiedad crucial: posee una <strong>frontera en el infinito</strong> bien definida matemáticamente (algo que el espacio plano ordinario no tiene de forma tan útil).</p>
+        <div class="callout c-ej"><span class="tag">ANALOGÍA</span><p>Imagina un disco cuya geometría se distorsiona de forma que, aunque el disco parece finito visto desde fuera, en realidad tiene un «borde» en el infinito que se puede tratar matemáticamente como una frontera concreta (es la idea detrás del famoso «disco de Escher», que de hecho se usa como ilustración habitual del espacio AdS).</p></div>
+      </article>
+
+      <article class="card" style="grid-column:1/-1">
+        <h3>🔍 CFT: Conformal Field Theory (teoría de campos conforme)</h3>
+        <p>Es una teoría cuántica de campos con una simetría extra: la <strong>simetría conforme</strong>, que incluye no solo rotaciones y traslaciones, sino también los <strong>cambios de escala</strong> (agrandar o achicar todo el sistema sin cambiar su física). Estas teorías no tienen una escala de longitud preferida: se ven «igual» a cualquier zoom.</p>
+      </article>
+    </div>
+
+    <div class="bigquote">«Una teoría de gravedad en un espacio Anti-de Sitter de 5 dimensiones puede ser equivalente a una teoría cuántica de campos conforme definida en su frontera de 4 dimensiones.»</div>
+
+    <h3 style="margin-top:18px">🔎 La frase clave, palabra por palabra</h3>
+    <div class="acc">
+      <button class="acc-btn">«Teoría de gravedad»… <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>Una teoría (en este caso, de cuerdas) donde el espacio-tiempo mismo es dinámico y puede curvarse.</p></div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-btn">«Espacio Anti-de Sitter de 5 dimensiones»… <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>El espacio con curvatura negativa descrito arriba, aquí con 4 dimensiones espaciales + 1 temporal = 5 en total (comúnmente llamado AdS₅).</p></div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-btn">«Puede ser equivalente»… <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>No es una aproximación ni una analogía; es la misma física, calculable exactamente de dos formas.</p></div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-btn">«Teoría cuántica de campos conforme»… <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>La CFT definida arriba, sin gravedad dinámica.</p></div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-btn">«Definida en su frontera de 4 dimensiones»… <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>El espacio AdS₅ tiene una frontera de una dimensión menos (3 espaciales + 1 temporal = 4), y es justo ahí donde «vive» la CFT.</p></div></div>
+    </div>
+
+    <div class="callout c-info" style="margin-top:16px"><span class="tag">EN RESUMEN</span><p>El interior con gravedad (5D) contiene exactamente la misma información física que la frontera sin gravedad (4D).</p></div>
+  </div>
+</section>
+
+<!-- ==================== FASE 5 ==================== -->
+<section class="page" id="fase5">
+  <div class="wrap page-pad">
+    <header class="sec-head">
+      <div class="sec-icon">💡</div>
+      <div>
+        <span class="phase-badge">FASE 5</span>
+        <h2>La idea central</h2>
+        <p class="sec-sub">Cuatro maneras de mirar la misma equivalencia: de la analogía sencilla al enunciado matemático.</p>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <div class="tab-row">
+        <button class="tab-btn active" data-tab="t1">🎬 Con analogía sencilla</button>
+        <button class="tab-btn" data-tab="t2">📐 Sin analogías</button>
+        <button class="tab-btn" data-tab="t3">⚖️ Con mayor rigor</button>
+        <button class="tab-btn" data-tab="t4">∑ Matemáticamente</button>
+      </div>
+      <div class="tab-panel active" data-panel="t1">
+        <p>Imagina una película 3D proyectada sobre una pantalla plana 2D. Todo lo que ves con profundidad, movimiento, volumen —el «mundo 3D»— está en realidad codificado completamente en los píxeles de una superficie plana. No es que la pantalla «aproxime» la película: contiene, en un sentido preciso, exactamente la misma información.</p>
+        <p style="margin-top:10px">Así es aproximadamente la relación entre el AdS con gravedad (la «película 3D») y la CFT en su frontera (la «pantalla 2D»).</p>
+      </div>
+      <div class="tab-panel" data-panel="t2">
+        <p>Existen dos teorías físicas, formuladas en espacios de dimensión diferente, con contenido físico distinto en apariencia (una tiene gravedad y una dimensión extra; la otra no tiene gravedad y una dimensión menos). A pesar de las apariencias, ambas teorías producen <strong>exactamente las mismas predicciones</strong> para cualquier cantidad física medible, si se traducen correctamente los conceptos de una a la otra.</p>
+      </div>
+      <div class="tab-panel" data-panel="t3">
+        <p>La correspondencia establece un <strong>diccionario exacto</strong>: cada estado, cada operador, cada cantidad calculable en un lado tiene una contraparte precisa en el otro. No hay pérdida de información al pasar de un lado a otro, y (crucialmente) no se trata de un límite aproximado: se conjetura que la equivalencia es exacta para todos los valores de los parámetros de la teoría.</p>
+      </div>
+      <div class="tab-panel" data-panel="t4">
+        <p>La equivalencia se expresa mediante la igualdad de sus <strong>funciones de partición</strong> (un objeto matemático que codifica toda la física de un sistema cuántico o térmico — lo veremos en detalle en la Fase 12):</p>
+        <div class="formula">Z<sub>gravedad</sub> <span class="eq">=</span> Z<sub>CFT</sub></div>
+        <p style="margin-top:10px">Esto significa que calcular cualquier cantidad física usando la teoría de gravedad en AdS da el mismo resultado numérico que calcularla usando la CFT en la frontera.</p>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:18px">
+      <article class="card">
+        <h3>🔗 Qué significa «equivalentes» (no solo «parecidas»)</h3>
+        <p>Que dos teorías sean equivalentes significa que existe un diccionario preciso y biunívoco entre sus objetos matemáticos: cada cantidad calculable en una corresponde a exactamente una cantidad calculable en la otra, y los valores numéricos coinciden siempre. No es que «se comporten de forma similar» o «compartan algunas propiedades»: es la misma estructura matemática subyacente, expresada en dos lenguajes distintos.</p>
+        <div class="callout c-ej"><span class="tag">EJEMPLO</span><p>Es como decir «agua» y «H₂O»: no son cosas parecidas, son la misma cosa descrita con vocabularios diferentes.</p></div>
+      </article>
+      <article class="card">
+        <h3>🔁 Qué es una dualidad física</h3>
+        <p>Una dualidad es, precisamente, esta situación: dos descripciones teóricas aparentemente distintas (diferente número de dimensiones, diferente contenido de campos, presencia o ausencia de gravedad) que resultan ser, tras un diccionario de traducción, la misma teoría física.</p>
+        <div class="callout c-info"><span class="tag">INFO</span><p>Las dualidades no son exclusivas de AdS/CFT: existen otras dualidades en física (por ejemplo, entre distintas versiones de la teoría de cuerdas), pero AdS/CFT es la más profunda y mejor estudiada, porque relaciona una teoría con gravedad con una sin gravedad.</p></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FASE 6 ==================== -->
+<section class="page" id="fase6">
+  <div class="wrap page-pad">
+    <header class="sec-head">
+      <div class="sec-icon">⭐</div>
+      <div>
+        <span class="phase-badge">FASE 6</span>
+        <h2>El ejemplo más importante</h2>
+        <p class="sec-sub">La realización concreta y mejor estudiada de la correspondencia, término por término.</p>
+      </div>
+    </header>
+
+    <p style="color:var(--muted)">La afirmación central:</p>
+    <div class="formula">Type IIB string theory on AdS₅ × S⁵ <span class="eq">↔</span> N = 4 SU(N) Super-Yang-Mills en 4 dimensiones</div>
+
+    <h3 style="margin-top:22px">📚 Vamos término por término</h3>
+    <div class="acc">
+      <button class="acc-btn">Type IIB <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>Una de las cinco variantes consistentes de teoría de cuerdas supersimétrica en 10 dimensiones (las otras son Type I, Type IIA, y dos versiones heteróticas). Type IIB solo contiene cuerdas cerradas orientadas y es la que aparece naturalmente en el sistema de D3-branas que estudió Maldacena.</p></div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-btn">AdS₅ <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>El espacio Anti-de Sitter de 5 dimensiones descrito en la Fase 4.</p></div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-btn">S⁵ <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>Una esfera de 5 dimensiones (la generalización de una esfera ordinaria de 2 dimensiones a 5 dimensiones).</p></div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-btn">× (producto) <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>El símbolo de «producto»: el espacio total de 10 dimensiones (recordemos, Type IIB vive en 10D) se construye combinando las 5 dimensiones de AdS₅ con las 5 dimensiones de la esfera S⁵ (5+5=10). Las dimensiones de la esfera están «compactificadas» (enrolladas, Fase 2 punto 7); las de AdS son las que sentimos como «grandes».</p></div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-btn">N = 4 <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>Indica el grado de supersimetría de la teoría (ver siguiente punto): «N=4» es la cantidad máxima posible de supersimetría para una teoría de campos ordinaria en 4 dimensiones.</p></div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-btn">Supersimetría <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>Una simetría hipotética que relaciona dos grandes familias de partículas: los bosones (partículas de fuerza, con espín entero) y los fermiones (partículas de materia, con espín semientero). Por cada bosón existiría un fermión «compañero» (y viceversa), con las mismas propiedades salvo el espín. No se ha detectado experimentalmente en la naturaleza, pero es matemáticamente central en teoría de cuerdas.</p></div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-btn">SU(N) <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>Un grupo de simetría matemático («grupo de matrices unitarias especiales de tamaño N×N»). Determina qué tipo de «carga» llevan las partículas de la teoría gauge (de forma análoga a como el electromagnetismo se basa en el grupo U(1)). El parámetro N será crucial más adelante (Fase 10): corresponde al número de D-branas apiladas.</p></div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-btn">Yang-Mills <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>El tipo de teoría gauge (Fase 1, punto 10) que generaliza el electromagnetismo a grupos de simetría más complejos como SU(N); es la base matemática del Modelo Estándar (describe las fuerzas nuclear fuerte y débil).</p></div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-btn">«Conforme» <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>Como vimos en la Fase 4, significa que la teoría es invariante bajo cambios de escala; no tiene una longitud característica preferida.</p></div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-btn">Super-Yang-Mills <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>Una teoría de Yang-Mills que además incorpora supersimetría. «N=4 Super-Yang-Mills» es, de hecho, un caso extremadamente especial: es conforme de forma exacta (no solo aproximada) y es la teoría cuántica de campos con más simetría conocida en 4 dimensiones.</p></div></div>
+    </div>
+
+    <div class="callout c-info" style="margin-top:18px"><span class="tag">LA FRASE RECONSTRUIDA</span>
+      <p>La teoría de cuerdas de tipo IIB, viviendo en un espacio de 10 dimensiones formado por un AdS₅ (con gravedad) combinado con una esfera compactificada S⁵, es exactamente equivalente a una teoría de campos gauge (Super-Yang-Mills, con grupo de simetría SU(N) y supersimetría máxima N=4), sin gravedad, conforme, definida solo en las 4 dimensiones de la frontera de ese AdS₅.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FASE 7 ==================== -->
+<section class="page" id="fase7">
+  <div class="wrap page-pad">
+    <header class="sec-head">
+      <div class="sec-icon">📏</div>
+      <div>
+        <span class="phase-badge">FASE 7</span>
+        <h2>¿Dónde está la dimensión extra?</h2>
+        <p class="sec-sub">La pregunta más contraintuitiva de toda la correspondencia: la coordenada radial como escala de energía.</p>
+      </div>
+    </header>
+
+    <p style="color:#c3d4ee">Esta es la pregunta más contraintuitiva de toda la correspondencia: si la CFT vive en 4 dimensiones y no tiene gravedad, ¿de dónde «sale» la quinta dimensión (la del AdS) del lado gravitatorio?</p>
+
+    <div class="fig-wrap">
+      <svg viewBox="0 0 900 360" role="img" aria-label="Diagrama: la coordenada radial z va de la frontera UV al interior IR del espacio AdS" font-family="'Segoe UI',system-ui,sans-serif">
+        <rect width="900" height="360" fill="#0b1226"/>
+        <circle cx="260" cy="185" r="140" fill="#101b38" stroke="#00d4ff" stroke-width="3"/>
+        <circle cx="260" cy="185" r="140" fill="none" stroke="rgba(0,212,255,.25)" stroke-width="10"/>
+        <text x="260" y="30" text-anchor="middle" font-size="17" fill="#00d4ff">FRONTERA · UV (altas energías, distancias cortas)</text>
+        <line x1="260" y1="52" x2="260" y2="168" stroke="url(#uvG2)" stroke-width="4"/>
+        <defs><linearGradient id="uvG2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00d4ff"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs>
+        <polygon points="251,164 269,164 260,182" fill="#a855f7"/>
+        <circle r="6" fill="#00d4ff"><animateMotion path="M260 56 L260 160" dur="2.6s" repeatCount="indefinite"/></circle>
+        <text x="292" y="115" font-size="15" fill="#9fb6d9">z (coordenada radial)</text>
+        <circle cx="260" cy="185" r="7" fill="#a855f7"/>
+        <text x="260" y="350" text-anchor="middle" font-size="17" fill="#c084fc">INTERIOR PROFUNDO · IR (bajas energías, distancias largas)</text>
+        <g font-size="16">
+          <rect x="520" y="60" width="330" height="70" rx="10" fill="#0f172a" stroke="#00d4ff" stroke-width="1.5"/>
+          <text x="540" y="90" fill="#00d4ff">Cerca de la frontera (z → 0)</text>
+          <text x="540" y="114" fill="#9fb6d9">Física UV de la CFT</text>
+          <rect x="520" y="230" width="330" height="70" rx="10" fill="#0f172a" stroke="#a855f7" stroke-width="1.5"/>
+          <text x="540" y="260" fill="#c084fc">Hacia el interior (z grande)</text>
+          <text x="540" y="284" fill="#9fb6d9">Física IR de la CFT</text>
+          <line x1="685" y1="134" x2="685" y2="226" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5 6">
+            <animate attributeName="stroke-dashoffset" from="0" to="-44" dur="2s" repeatCount="indefinite"/>
+          </line>
+          <text x="700" y="185" fill="#f59e0b">UV/IR</text>
+        </g>
+      </svg>
+      <p class="fig-cap">Moverse a lo largo de la coordenada radial del espacio AdS equivale a cambiar la escala de energía con la que examinas la CFT.</p>
+    </div>
+
+    <div class="grid g2" style="margin-top:16px">
+      <article class="card">
+        <h3>🧭 La coordenada radial de AdS</h3>
+        <p>El espacio AdS₅ tiene una coordenada extra, llamada habitualmente «coordenada radial» (a menudo denotada z o r), que no corresponde a ninguna de las 4 dimensiones espacio-temporales ordinarias de la CFT. Es, literalmente, la dimensión «de más».</p>
+      </article>
+      <article class="card">
+        <h3>🔬 Relación con la escala de energía</h3>
+        <p>Aquí está la clave: esa coordenada radial no es una dimensión espacial arbitraria, sino que se identifica con la <strong>escala de energía</strong> (o, de forma equivalente, la escala de longitud/distancia) a la que se examina la teoría de campos en la frontera.</p>
+        <div class="callout c-ej"><span class="tag">EJEMPLO CONCRETO</span><p>Piensa en cómo estudiamos un sistema físico a distintas «resoluciones»: mirar un material a simple vista (baja energía, gran escala) muestra propiedades distintas a mirarlo con un microscopio electrónico (alta energía, escala diminuta). En AdS/CFT, moverte a lo largo de la coordenada radial del espacio AdS es matemáticamente equivalente a cambiar la escala de energía/resolución a la que examinas la CFT.</p></div>
+      </article>
+      <article class="card">
+        <h3>🔆 UV/IR correspondence</h3>
+        <p>«UV» (ultravioleta) se refiere en física a altas energías/distancias cortas; «IR» (infrarrojo) a bajas energías/distancias largas. La «UV/IR correspondence» establece que:</p>
+        <div class="chips"><span class="chip c">Región cerca de la frontera → física UV (altas energías)</span><span class="chip v">Región profunda del interior → física IR (bajas energías)</span></div>
+      </article>
+      <article class="card">
+        <h3>❓ Por qué la dimensión extra «es» una escala de energía</h3>
+        <p>En la CFT no hay ninguna longitud física privilegiada (es conforme, Fase 4), pero sí existe el concepto de «a qué escala de energía estás mirando el sistema» (por ejemplo, si estudias las interacciones de quarks a la energía de un acelerador de partículas u otra). AdS/CFT muestra que esa dirección «abstracta» de cambio de escala, en la descripción gravitatoria, se convierte en una <strong>dirección geométrica real</strong>, la coordenada radial del espacio AdS. La dimensión extra no es un espacio arbitrario nuevo: es la manera en que la gravedad «geometriza» la idea de escala de energía de la teoría cuántica.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FASE 8 ==================== -->
+<section class="page" id="fase8">
+  <div class="wrap page-pad">
+    <header class="sec-head">
+      <div class="sec-icon">⚖️</div>
+      <div>
+        <span class="phase-badge">FASE 8</span>
+        <h2>Gravedad ↔ Teoría cuántica</h2>
+        <p class="sec-sub">Cómo una teoría sin gravedad puede describir agujeros negros, geometría y espacio-tiempo.</p>
+      </div>
+    </header>
+
+    <div class="grid g2">
+      <article class="card">
+        <h3>🧩 ¿Qué significa que la gravedad esté «codificada» en una teoría cuántica sin gravedad?</h3>
+        <p>Significa que toda propiedad del lado gravitatorio (la curvatura del espacio-tiempo, la existencia de agujeros negros, ondas gravitacionales, etc.) tiene una traducción exacta a cantidades puramente cuánticas calculables en la CFT (correladores de operadores, estados térmicos, entropías de entrelazamiento). No hay ningún aspecto de la física gravitatoria que se «pierda» al traducirlo al lenguaje de la CFT.</p>
+      </article>
+      <article class="card">
+        <h3>🕳️ ¿Cómo puede una teoría sin gravedad describir agujeros negros?</h3>
+        <p>Un agujero negro en el interior de AdS se corresponde, en la CFT, con un <strong>estado térmico</strong> (un estado a cierta temperatura, como un gas caliente de partículas fuertemente interactuantes) de la teoría gauge. La entropía y la temperatura del agujero negro se traducen directamente a la entropía y temperatura de ese estado térmico cuántico ordinario. En este sentido, «estudiar un agujero negro» se convierte en «estudiar un plasma cuántico caliente» —un problema, en principio, sin ningún misterio conceptual de gravedad.</p>
+      </article>
+      <article class="card">
+        <h3>🏗️ ¿Cómo pueden aparecer geometría y espacio-tiempo a partir de grados de libertad cuánticos?</h3>
+        <p>Esta es una de las preguntas más profundas y activas de la física teórica actual. La idea (que desarrollaremos con más detalle en la Fase 14) es que la geometría del espacio AdS emerge de las propiedades del estado cuántico de la CFT —en particular, de patrones de <strong>entrelazamiento cuántico</strong> entre sus grados de libertad. No se trata de que «el espacio existe y además hay una teoría cuántica que lo describe»: se trata de que el espacio-tiempo mismo podría ser una construcción derivada, útil, que emerge de la estructura de información cuántica de la CFT.</p>
+      </article>
+      <article class="card">
+        <h3>🌱 ¿Es la gravedad fundamental o emergente?</h3>
+        <p>Dentro de la interpretación de AdS/CFT, la gravedad <strong>no es fundamental</strong>: es una descripción efectiva y aproximada, muy útil, de una física subyacente que en realidad es una teoría cuántica ordinaria sin gravedad. Esta es una de las razones por las que AdS/CFT es tan importante conceptualmente: sugiere que el espacio-tiempo y la gravedad podrían no ser ingredientes básicos de la naturaleza, sino fenómenos que emergen de algo más fundamental y puramente cuántico.</p>
+      </article>
+    </div>
+
+    <h3 style="margin-top:24px">🧭 Distinción obligatoria: sabemos / creemos / interpretamos / no sabemos</h3>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Categoría</th><th>Contenido</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge b-green">Lo que sabemos</span><br><small style="color:var(--dim)">(demostrado/calculado)</small></td><td>La correspondencia funciona y da resultados consistentes en todos los cálculos explícitos realizados hasta ahora (décadas de pruebas indirectas).</td></tr>
+          <tr><td><span class="badge b-cyan">Lo que creemos</span><br><small style="color:var(--dim)">(fuertemente respaldado)</small></td><td>La dualidad es exacta, no aproximada, para el caso AdS₅ × S⁵ / N=4 SYM.</td></tr>
+          <tr><td><span class="badge b-purple">Interpretación</span></td><td>Que esto implica que «la gravedad es emergente» como principio general de la naturaleza (más allá de este ejemplo concreto).</td></tr>
+          <tr><td><span class="badge b-red">Lo que no sabemos</span></td><td>Una demostración matemática rigurosa y completa de la correspondencia (sigue siendo, formalmente, una <em>conjetura</em>, no un teorema). Tampoco sabemos con certeza cómo emerge exactamente la geometría en el caso general.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FASE 9 ==================== -->
+<section class="page" id="fase9">
+  <div class="wrap page-pad">
+    <header class="sec-head">
+      <div class="sec-icon">🕳️</div>
+      <div>
+        <span class="phase-badge">FASE 9</span>
+        <h2>Agujeros negros</h2>
+        <p class="sec-sub">Entropía, temperatura, información y la paradoja más famosa de la física moderna.</p>
+      </div>
+    </header>
+
+    <div class="grid g2">
+      <article class="card"><div class="concept-top"><span class="num">1</span><h3>Agujero negro en AdS</h3></div>
+        <p>Es una solución de las ecuaciones de Einstein dentro del espacio AdS que tiene un horizonte de sucesos, igual que un agujero negro ordinario, pero embebido en un espacio-tiempo con curvatura negativa (AdS) en vez de espacio plano.</p></article>
+      <article class="card"><div class="concept-top"><span class="num">2</span><h3>Estado térmico en la CFT</h3></div>
+        <p>Como vimos en la Fase 8, el agujero negro en AdS corresponde exactamente a un estado de la CFT calentado a cierta temperatura (un «plasma» de partículas de la teoría gauge en equilibrio térmico).</p></article>
+      <article class="card"><div class="concept-top"><span class="num">3</span><h3>Entropía</h3></div>
+        <p>Del lado gravitatorio, se calcula con la fórmula de Bekenstein-Hawking (Fase 3, punto 4), usando el área del horizonte. Del lado de la CFT, se calcula contando los microestados cuánticos posibles del sistema térmico. AdS/CFT predice (y en muchos casos se ha verificado con cálculo explícito) que <strong>ambos números coinciden</strong>.</p></article>
+      <article class="card"><div class="concept-top"><span class="num">4</span><h3>Temperatura</h3></div>
+        <p>La temperatura de Hawking del agujero negro (una predicción teórica de que los agujeros negros emiten radiación térmica) se identifica exactamente con la temperatura del estado térmico correspondiente en la CFT.</p></article>
+      <article class="card"><div class="concept-top"><span class="num g">5</span><h3>Información</h3></div>
+        <p>En un sistema cuántico ordinario (como el estado térmico de la CFT), la evolución es <strong>unitaria</strong>: la información nunca se destruye, solo se «revuelve» de forma extremadamente compleja.</p>
+        <div class="callout c-ej"><span class="tag">EJEMPLO</span><p>Como mezclar tinta en agua: parece perdida, pero en principio se podría reconstruir todo.</p></div></article>
+      <article class="card"><div class="concept-top"><span class="num a">6</span><h3>La paradoja de la información</h3></div>
+        <p>Stephen Hawking mostró que, según los cálculos semiclásicos (relatividad general + campos cuánticos, pero sin gravedad cuántica completa), un agujero negro que se evapora completamente (emitiendo radiación de Hawking) parecería destruir información de forma irreversible: la radiación emitida es puramente térmica, sin «memoria» de lo que cayó dentro. Esto contradice un principio fundamental de la mecánica cuántica (la unitariedad).</p></article>
+      <article class="card hl-card" style="grid-column:1/-1"><div class="concept-top"><span class="num g">7</span><h3>Qué aporta AdS/CFT</h3></div>
+        <p>Dado que el lado de la CFT es, sin ninguna duda, una teoría cuántica ordinaria y unitaria (nunca destruye información, por construcción), y dado que un agujero negro en AdS es exactamente equivalente a un estado térmico en esa CFT, esto es una fuerte evidencia de que la formación y evaporación de un agujero negro también debe ser, en última instancia, un proceso unitario que preserva la información — aunque los cálculos semiclásicos originales de Hawking sugirieran lo contrario.</p>
+        <div class="callout c-warn"><span class="tag">⚠ IMPORTANTE</span><p>AdS/CFT no ha explicado con detalle mecánico exactamente cómo la información escapa físicamente del agujero negro, ni ha «resuelto» completamente la paradoja en todos sus aspectos técnicos. Ha aportado un argumento de consistencia muy fuerte (la unitariedad debe preservarse), pero el mecanismo detallado de cómo se recupera la información sigue siendo objeto de investigación activa (con avances relevantes en las últimas décadas usando entrelazamiento y «islas de entropía», más allá del alcance de este curso introductorio).</p></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FASE 10 ==================== -->
+<section class="page" id="fase10">
+  <div class="wrap page-pad">
+    <header class="sec-head">
+      <div class="sec-icon">🔁</div>
+      <div>
+        <span class="phase-badge">FASE 10</span>
+        <h2>Dualidad y cálculo (strong-weak duality)</h2>
+        <p class="sec-sub">Cuando un lado es imposible de calcular, el otro se vuelve sencillo.</p>
+      </div>
+    </header>
+
+    <div class="grid g2">
+      <article class="card">
+        <h3>🎚️ Acoplamiento débil y fuerte</h3>
+        <p>El «acoplamiento» mide cuán intensamente interactúan las partículas o los campos entre sí.</p>
+        <div class="chips"><span class="chip g"><b>Débil:</b>&nbsp;interacciones como pequeñas perturbaciones sobre un sistema simple — fácil de calcular.</span></div>
+        <div class="chips"><span class="chip w"><b>Fuerte:</b>&nbsp;interacciones tan intensas que no se pueden tratar como pequeñas correcciones; los métodos habituales fallan o son extremadamente difíciles.</span></div>
+      </article>
+      <article class="card">
+        <h3>➕ Perturbación y expansión perturbativa</h3>
+        <p>Cuando el acoplamiento es débil, se puede calcular el resultado de una teoría como una suma de términos cada vez más pequeños (una «expansión perturbativa»): el primer término da una aproximación razonable, y cada término siguiente la mejora ligeramente. Esto solo funciona bien si el acoplamiento es pequeño; si es grande, la serie deja de tener sentido (cada término es más grande que el anterior).</p>
+      </article>
+    </div>
+
+    <article class="card hl-card" style="margin-top:16px">
+      <h3>⚡ La dualidad fuerte-débil de AdS/CFT</h3>
+      <p>Aquí está el resultado más útil (y sorprendente) de la conjetura: existe una relación entre el acoplamiento de la CFT y la curvatura/acoplamiento del lado gravitatorio, de forma que:</p>
+      <div class="vs">
+        <div class="col"><h4 style="color:#c084fc">CFT FUERTEMENTE ACOPLADA</h4><p>Muy difícil de calcular directamente con los métodos cuánticos habituales.</p></div>
+        <div class="mid">⇄</div>
+        <div class="col"><h4 style="color:var(--accent)">GRAVEDAD DÉBILMENTE ACOPLADA</h4><p>El espacio-tiempo es suave, la teoría de cuerdas se puede tratar casi como gravedad clásica ordinaria, fácil de calcular.</p></div>
+      </div>
+      <div class="callout c-info"><span class="tag">Y VICEVERSA</span><p>Cuando la teoría de cuerdas está fuertemente acoplada, la CFT dual es débilmente acoplada.</p></div>
+    </article>
+
+    <article class="card" style="margin-top:16px">
+      <h3>💎 Por qué esto es tan valioso</h3>
+      <p>Significa que problemas de física cuántica extremadamente difíciles pueden, en ciertos casos, traducirse a problemas de gravedad clásica, mucho más manejables matemáticamente. Esta es la razón práctica por la que AdS/CFT se ha convertido en una herramienta de cálculo usada en física nuclear, materia condensada y otras áreas, más allá de su interés puramente teórico sobre gravedad cuántica.</p>
+      <div class="callout c-ej"><span class="tag">EJEMPLO</span><p>Entender un plasma de quarks y gluones fuertemente acoplado, relevante en física nuclear.</p></div>
+    </article>
+  </div>
+</section>
+
+<!-- ==================== FASE 11 ==================== -->
+<section class="page" id="fase11">
+  <div class="wrap page-pad">
+    <header class="sec-head">
+      <div class="sec-icon">🧮</div>
+      <div>
+        <span class="phase-badge">FASE 11</span>
+        <h2>Matemáticas necesarias</h2>
+        <p class="sec-sub">El lenguaje mínimo para leer las ecuaciones de la correspondencia.</p>
+      </div>
+    </header>
+
+    <div class="grid g2">
+      <article class="card hl-card" style="grid-column:1/-1">
+        <h3>📐 Espacios y métricas</h3>
+        <p>Un espacio matemático (en este contexto) es un conjunto de puntos con una noción de distancia. Una <strong>métrica</strong> es precisamente la función matemática que asigna una «distancia» (o, en relatividad, un «intervalo espacio-temporal») entre puntos infinitesimalmente cercanos. Se escribe típicamente como:</p>
+        <div class="formula">ds² <span class="eq">=</span> g<sub>μν</sub> dx<sup>μ</sup> dx<sup>ν</sup></div>
+        <div class="legend">
+          <span><b>ds²</b> = elemento de «distancia» infinitesimal (al cuadrado) entre dos puntos muy cercanos</span>
+          <span><b>g<sub>μν</sub></b> = tensor métrico: codifica cómo se mide la distancia en cada dirección y punto; puede depender de la posición, lo que permite describir espacios curvos</span>
+          <span><b>dx<sup>μ</sup></b> = desplazamientos infinitesimales en cada coordenada del espacio-tiempo (x, y, z, t…)</span>
+        </div>
+        <div class="callout c-info"><span class="tag">CONVENIO DE EINSTEIN</span><p>Los índices repetidos (μ, ν) indican una suma sobre todas las combinaciones de coordenadas.</p></div>
+      </article>
+
+      <article class="card"><h3>🌍 Curvatura</h3>
+        <p>Es una medida de cuánto se desvía la geometría de un espacio de ser «plana» (euclídea). En un espacio plano, dos líneas paralelas nunca se cruzan; en un espacio curvo, esto puede dejar de ser cierto.</p>
+        <div class="callout c-ej"><span class="tag">EJEMPLO</span><p>Los meridianos de la Tierra, que son «paralelos» en el ecuador pero se cruzan en los polos.</p></div></article>
+
+      <article class="card"><h3>🧊 Tensores</h3>
+        <p>Un tensor es un objeto matemático que generaliza los vectores (que tienen magnitud y dirección) para poder describir cantidades más complejas que cambian de forma controlada según el sistema de coordenadas usado. El tensor métrico g<sub>μν</sub> de arriba es un ejemplo.</p></article>
+
+      <article class="card"><h3>∫ Lagrangiano y acción</h3>
+        <p>Un lagrangiano es una función matemática que resume toda la dinámica de un sistema físico (a partir de él se pueden derivar todas las ecuaciones de movimiento). La acción (S) es la integral del lagrangiano sobre el espacio y el tiempo:</p>
+        <div class="formula">S <span class="eq">=</span> ∫ L d⁴x</div>
+        <p style="margin-top:10px">Los sistemas físicos evolucionan siguiendo trayectorias que hacen que esta acción sea «extremal» (mínima o máxima), un principio llamado <strong>principio de mínima acción</strong>.</p></article>
+
+      <article class="card"><h3>🧩 Campos, simetrías y grupos (repaso conectado)</h3>
+        <p>Ya vimos qué es un campo (Fase 1.5) y una simetría (Fase 1.9). Un grupo matemático es, formalmente, un conjunto de transformaciones (como rotaciones) junto con una regla para combinarlas, que satisface ciertas propiedades (existe una transformación «identidad», cada transformación tiene una «inversa», etc.). El SU(N) mencionado en la Fase 6 es un grupo de este tipo.</p></article>
+
+      <article class="card"><h3>📊 Geometría diferencial básica</h3>
+        <p>Es la rama de las matemáticas que estudia espacios curvos usando cálculo (derivadas, integrales). Proporciona el lenguaje (tensores, métricas, curvatura) necesario para formular la relatividad general y, por extensión, la geometría del espacio AdS.</p></article>
+
+      <article class="card hl-card" style="grid-column:1/-1">
+        <h3>🌀 La métrica de AdS (la ecuación mínima necesaria)</h3>
+        <p>Una forma común de escribir la métrica de AdS₅ es:</p>
+        <div class="formula">ds² <span class="eq">=</span> (L² / z²) · ( −dt² + dx₁² + dx₂² + dx₃² + dz² )</div>
+        <div class="legend">
+          <span><b>L</b> = radio de curvatura de AdS: constante que mide cuán curvado está el espacio</span>
+          <span><b>z</b> = coordenada radial (Fase 7): z → 0 es la frontera; z grande es el interior profundo</span>
+          <span><b>t, x₁, x₂, x₃</b> = las 4 coordenadas ordinarias de espacio-tiempo, que coinciden con las coordenadas donde vive la CFT</span>
+        </div>
+        <div class="callout c-info"><span class="tag">INFO</span><p>El factor (L²/z²) hace que, al acercarnos a la frontera (z→0), las distancias se «estiren» de forma muy particular — es precisamente esta estructura la que codifica la relación entre z y la escala de energía de la CFT (Fase 7).</p></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FASE 12 ==================== -->
+<section class="page" id="fase12">
+  <div class="wrap page-pad">
+    <header class="sec-head">
+      <div class="sec-icon">🧾</div>
+      <div>
+        <span class="phase-badge">FASE 12</span>
+        <h2>La fórmula de Maldacena (fórmula GKP-Witten)</h2>
+        <p class="sec-sub">La propuesta que precisó matemáticamente la conjetura y estableció el diccionario central.</p>
+      </div>
+    </header>
+
+    <h3>📦 Conceptos previos</h3>
+    <div class="grid g3">
+      <article class="card"><h3>Función de partición (Z)</h3><p>Un objeto matemático que, en física estadística y QFT, «empaqueta» toda la información posible sobre un sistema (todas sus probabilidades, promedios, correladores) en una sola expresión matemática.</p></article>
+      <article class="card"><h3>Fuente</h3><p>En QFT, se puede «perturbar» una teoría añadiendo un término externo (una fuente, φ₀) que se acopla a un operador de la teoría, útil para calcular cómo responde el sistema.</p></article>
+      <article class="card"><h3>Operador</h3><p>Una cantidad física construida a partir de los campos de la teoría (por ejemplo, el propio campo, o un producto de campos), cuyo valor esperado se puede medir/calcular.</p></article>
+      <article class="card"><h3>Condición de frontera</h3><p>En una ecuación diferencial (como las que rigen la gravedad), es el valor que se exige que tome una solución en el borde de la región considerada.</p></article>
+      <article class="card"><h3>Correlador</h3><p>El valor esperado del producto de dos o más operadores, que mide cómo están correlacionadas las fluctuaciones de un sistema en distintos puntos.</p></article>
+      <article class="card"><h3>Función generadora</h3><p>Una función (como Z, con la fuente φ₀) de la que se pueden «derivar» todos los correladores de la teoría.</p></article>
+    </div>
+
+    <h3 style="margin-top:24px">🎯 La fórmula central</h3>
+    <p style="color:#c3d4ee">La propuesta concreta de Gubser-Klebanov-Polyakov y Witten (que precisó matemáticamente la conjetura de Maldacena) es:</p>
+    <div class="formula">Z<sub>CFT</sub>[φ₀] <span class="eq">=</span> Z<sub>cuerdas</sub>[φ → φ₀ en la frontera de AdS]</div>
+    <div class="callout c-info"><span class="tag">EN PALABRAS</span><p>La función de partición de la CFT, con una fuente φ₀ acoplada a un operador, es exactamente igual a la función de partición completa de la teoría de cuerdas en AdS, calculada exigiendo que el campo correspondiente φ del lado gravitatorio tome precisamente el valor φ₀ en la frontera del espacio AdS.</p></div>
+
+    <p style="color:#c3d4ee;margin-top:16px">En el límite donde la teoría de cuerdas se puede aproximar por gravedad clásica (relatividad general ordinaria, válido en el régimen de acoplamiento fuerte de la CFT, Fase 10), esto se simplifica a:</p>
+    <div class="formula">Z<sub>CFT</sub>[φ₀] <span class="eq">≈</span> exp( −S<sub>gravedad</sub>[φ → φ₀] )</div>
+    <p style="color:#c3d4ee;margin-top:10px">donde S<sub>gravedad</sub> es la acción clásica de la teoría de gravedad (Fase 11), evaluada sobre la solución que satisface esa condición de frontera.</p>
+
+    <h3 style="margin-top:24px">📖 El diccionario: operadores CFT ↔ campos en AdS</h3>
+    <article class="card">
+      <p>Esta fórmula establece el diccionario más importante de toda la correspondencia: <strong>a cada operador de la CFT en la frontera le corresponde un campo específico que se propaga en el interior de AdS, y viceversa</strong>.</p>
+      <div class="dicc">
+        <div class="side">Operador de energía-momento de la CFT (mide cómo se distribuye la energía)</div>
+        <div class="arrow">↔</div>
+        <div class="side">Campo gravitatorio (la métrica) del lado de AdS</div>
+      </div>
+      <div class="dicc">
+        <div class="side">Calcular correladores de operadores en la CFT (típicamente muy difícil si está fuertemente acoplada)</div>
+        <div class="arrow">→</div>
+        <div class="side">Resolver ecuaciones de campos clásicos en AdS (típicamente mucho más manejable)</div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ==================== FASE 13 ==================== -->
+<section class="page" id="fase13">
+  <div class="wrap page-pad">
+    <header class="sec-head">
+      <div class="sec-icon">🔍</div>
+      <div>
+        <span class="phase-badge">FASE 13</span>
+        <h2>Entender la holografía de verdad</h2>
+        <p class="sec-sub">Cinco preguntas incómodas, respondidas con honestidad: hechos, interpretaciones y terreno abierto.</p>
+      </div>
+    </header>
+
+    <div class="acc">
+      <button class="acc-btn">📍 ¿Dónde está almacenada la información? <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>En el sentido más literal que ofrece la correspondencia: toda la información física del sistema completo (incluyendo el interior del espacio AdS con gravedad) puede reconstruirse a partir de los datos definidos únicamente en la CFT de la frontera. En ese sentido, «está almacenada» en la frontera.</p></div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-btn">🧱 ¿Qué significa exactamente que la frontera «codifica» el interior? <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>Significa que existe una regla matemática (el diccionario de la Fase 12, más desarrollos posteriores como Ryu-Takayanagi, Fase 14) que permite, en principio, reconstruir cualquier cantidad física del interior de AdS (incluida su geometría) a partir de datos puramente de la CFT.</p></div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-btn">🌌 ¿Es la dimensión extra real? <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>Aquí hay que ser cuidadoso, distinguiendo hechos de interpretaciones: matemáticamente, la dimensión extra es tan «real» como cualquier otra dentro de la descripción gravitatoria (aparece en las ecuaciones, tiene consecuencias calculables, es indispensable para que la descripción funcione). Pero conceptualmente, muchos físicos la interpretan como una dirección emergente, derivada de la escala de energía de una teoría que en el fondo vive en una dimensión menos. No hay consenso único sobre si hay que considerarla «físicamente real» en el mismo sentido que las dimensiones ordinarias, o como una herramienta geométrica derivada — esto pertenece más al terreno de la interpretación filosófica que al de un hecho establecido.</p></div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-btn">🏗️ ¿Puede el espacio-tiempo emerger de información cuántica? <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>Esta es, hoy, una línea de investigación activa y muy prometedora, no un hecho establecido con la misma solidez que, por ejemplo, la fórmula de Bekenstein-Hawking. Hay evidencia sustancial a favor (como veremos en la Fase 14), pero no es una teoría completa y cerrada.</p></div></div>
+    </div>
+    <div class="acc">
+      <button class="acc-btn">🔗 ¿Qué papel tiene el entrelazamiento cuántico? <span class="chev">▾</span></button>
+      <div class="acc-panel"><div class="acc-inner"><p>Es, según la evidencia actual, el «pegamento» que conecta la estructura del estado cuántico de la CFT con la conectividad geométrica del espacio-tiempo dual. Lo desarrollamos en detalle en la Fase 14.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FASE 14 ==================== -->
+<section class="page" id="fase14">
+  <div class="wrap page-pad">
+    <header class="sec-head">
+      <div class="sec-icon">🔗</div>
+      <div>
+        <span class="phase-badge">FASE 14</span>
+        <h2>Relación con el entrelazamiento cuántico</h2>
+        <p class="sec-sub">«El entrelazamiento construye el espacio-tiempo»: la frontera entre geometría e información cuántica.</p>
+      </div>
+    </header>
+
+    <div class="grid g2">
+      <article class="card"><h3>🔗 Entrelazamiento cuántico</h3>
+        <p>Cuando dos sistemas cuánticos interactúan y luego se separan, pueden quedar «entrelazados»: el estado de uno no puede describirse de forma independiente del otro, aunque estén muy alejados. Medir uno afecta instantáneamente la descripción del otro.</p>
+        <div class="callout c-warn"><span class="tag">⚠ ACLARACIÓN</span><p>Esto no permite enviar información más rápido que la luz.</p></div></article>
+      <article class="card"><h3>🗺️ Geometría</h3>
+        <p>Como vimos, es la estructura del espacio-tiempo: distancias, curvatura, conectividad entre puntos.</p></article>
+      <article class="card"><h3>🕸️ Tensor networks (redes tensoriales)</h3>
+        <p>Son estructuras matemáticas usadas originalmente en física de la materia condensada para describir estados cuánticos complejos de muchas partículas de forma eficiente, organizando la información en una red de conexiones («tensores» conectados entre sí). Resulta que ciertas redes tensoriales específicas (como las llamadas «MERA») tienen una estructura geométrica que se parece sorprendentemente a un espacio tipo AdS, sugiriendo una conexión profunda entre cómo se organiza el entrelazamiento y cómo emerge la geometría.</p></article>
+      <article class="card"><h3>🧮 Entropía de entrelazamiento</h3>
+        <p>Es una medida cuántica de cuán entrelazada está una parte de un sistema con el resto. Es distinta de la entropía térmica ordinaria (aunque relacionada), y es una cantidad calculable rigurosamente en la CFT.</p></article>
+    </div>
+
+    <article class="card hl-card" style="margin-top:16px">
+      <h3>📏 Fórmula de Ryu-Takayanagi</h3>
+      <p>Ryu y Takayanagi propusieron (2006) una fórmula que relaciona la entropía de entrelazamiento de una región de la CFT en la frontera con el área de una superficie mínima dentro del espacio AdS que «cuelga» de esa región:</p>
+      <div class="formula">S<sub>entrelazamiento</sub> <span class="eq">=</span> Área(superficie mínima) / (4G)</div>
+      <div class="callout c-info"><span class="tag">PARECIDO DELIBERADO</span><p>Nótese el parecido con la fórmula de Bekenstein-Hawking (Fase 3): aquí, en vez del horizonte de un agujero negro, es una superficie geométrica genérica en el interior de AdS, asociada a una región cualquiera de la frontera.</p></div>
+    </article>
+
+    <article class="card" style="margin-top:16px">
+      <h3>🏛️ Reconstrucción del espacio-tiempo</h3>
+      <p>Conectando todo: la fórmula de Ryu-Takayanagi sugiere que la propia geometría del interior de AdS (específicamente, qué tan «conectadas» están distintas regiones del espacio) está directamente determinada por el patrón de entrelazamiento cuántico de la CFT en la frontera. Esta observación ha llevado a la idea, resumida en la frase célebre de los físicos Van Raamsdonk y Susskind, de que <strong>«el entrelazamiento construye el espacio-tiempo»</strong> (a veces citada como <strong>«ER = EPR»</strong>: la conexión geométrica entre dos regiones del espacio-tiempo —un puente de Einstein-Rosen— podría ser, en un sentido profundo, equivalente a que esas regiones estén cuánticamente entrelazadas).</p>
+      <div class="callout c-warn"><span class="tag">⚠ IMPORTANTE</span><p>Esto sigue siendo, en gran medida, terreno de investigación activa, con resultados sólidos en casos particulares (como el propio Ryu-Takayanagi, bien establecido dentro del marco de AdS/CFT) pero sin una teoría completa y general de «cómo emerge exactamente todo el espacio-tiempo» en toda su generalidad.</p></div>
+    </article>
+  </div>
+</section>
+
+<!-- ==================== FASE 15 ==================== -->
+<section class="page" id="fase15">
+  <div class="wrap page-pad">
+    <header class="sec-head">
+      <div class="sec-icon">🗺️</div>
+      <div>
+        <span class="phase-badge">FASE 15</span>
+        <h2>Qué hemos aprendido: reconstrucción completa</h2>
+        <p class="sec-sub">Todo el hilo del curso, reunido en una sola narración y un mapa conceptual.</p>
+      </div>
+    </header>
+
+    <article class="card prose">
+      <p>Partimos de un problema: la relatividad general y la mecánica cuántica no encajan, y necesitamos una teoría de gravedad cuántica. La teoría de cuerdas propone que las partículas son, en el fondo, modos de vibración de diminutas cuerdas, y exige dimensiones extra que se compactifican. Entre los objetos de la teoría de cuerdas están las D-branas, superficies sobre las que pueden terminar cuerdas abiertas, y que además curvan el espacio-tiempo a su alrededor cuando se apilan muchas.</p>
+      <p>Independientemente, la física de agujeros negros reveló el principio holográfico: la información de una región gravitatoria parece codificarse en su frontera, no en su volumen, sugiriendo que podría existir una descripción sin gravedad, en una dimensión menos, equivalente a cualquier teoría gravitatoria.</p>
+      <p>Maldacena unió ambos hilos: estudiando D-branas apiladas desde sus dos descripciones posibles (teoría gauge sobre las branas vs. geometría curva generada por ellas), propuso que una teoría de cuerdas completa en un espacio Anti-de Sitter (con gravedad, una dimensión extra) es exactamente equivalente a una teoría de campos conforme, sin gravedad, viviendo en la frontera de ese espacio (una dimensión menos). La dimensión extra de AdS se identifica con la escala de energía de la teoría de campos (UV/IR correspondence). Esta dualidad es del tipo fuerte-débil: cuando un lado es difícil de calcular, el otro suele ser fácil, lo que la convierte en una poderosa herramienta computacional además de conceptual.</p>
+      <p>Los agujeros negros en AdS se traducen en estados térmicos ordinarios en la CFT, aportando evidencia fuerte de que la evolución de un agujero negro debe preservar información (resolviendo, al menos parcialmente, la tensión de la paradoja de la información). Desarrollos más recientes (Ryu-Takayanagi, redes tensoriales) sugieren que la propia geometría del espacio-tiempo podría emerger del patrón de entrelazamiento cuántico de la teoría de la frontera — una de las ideas más profundas y activas de la física fundamental actual.</p>
+    </article>
+
+    <h3 style="margin-top:26px;text-align:center">🧭 Mapa conceptual</h3>
+    <div class="flow">
+      <div class="flow-node">TEORÍA DE CUERDAS</div><div class="flow-arrow">↓</div>
+      <div class="flow-node alt">D-BRANAS</div><div class="flow-arrow">↓</div>
+      <div class="flow-node">GRAVEDAD</div><div class="flow-arrow">↓</div>
+      <div class="flow-node alt">ANTI-DE SITTER (AdS)</div><div class="flow-arrow">↓</div>
+      <div class="flow-node">PRINCIPIO HOLOGRÁFICO</div><div class="flow-arrow">↓</div>
+      <div class="flow-node alt">CFT</div><div class="flow-arrow">↓</div>
+      <div class="flow-node">DUALIDAD</div><div class="flow-arrow">↓</div>
+      <div class="flow-node alt">AdS/CFT</div><div class="flow-arrow">↓</div>
+      <div class="flow-node">AGUJEROS NEGROS</div><div class="flow-arrow">↓</div>
+      <div class="flow-node alt">INFORMACIÓN</div><div class="flow-arrow">↓</div>
+      <div class="flow-node">ENTRELAZAMIENTO</div><div class="flow-arrow">↓</div>
+      <div class="flow-node alt">GEOMETRÍA EMERGENTE</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FASE 16 ==================== -->
+<section class="page" id="fase16">
+  <div class="wrap page-pad">
+    <header class="sec-head">
+      <div class="sec-icon">❓</div>
+      <div>
+        <span class="phase-badge">FASE 16</span>
+        <h2>Qué sabemos y qué no sabemos</h2>
+        <p class="sec-sub">El estado honesto de la cuestión: certezas, evidencias fuertes, límites y malentendidos frecuentes.</p>
+      </div>
+    </header>
+
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th style="width:270px">Nivel de certeza</th><th>Contenido</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge b-gray">Demostrado matemáticamente (como teorema)</span></td><td>Nada aún: AdS/CFT sigue siendo, formalmente, una <em>conjetura</em>, no un teorema probado con rigor matemático completo.</td></tr>
+          <tr><td><span class="badge b-green">Fuertemente respaldado</span></td><td>Decenas de miles de cálculos consistentes desde 1997, en múltiples regímenes, con acuerdos precisos entre ambos lados en todos los casos donde se puede comparar directamente.</td></tr>
+          <tr><td><span class="badge b-cyan">Conocido mediante cálculos y ejemplos concretos</span></td><td>El caso AdS₅×S⁵ / N=4 SYM es el mejor entendido; entropías de agujeros negros, correladores, comportamiento térmico, todos verificados en múltiples límites.</td></tr>
+          <tr><td><span class="badge b-amber">Sigue siendo conjetura / investigación abierta</span></td><td>Una demostración general y rigurosa; el mecanismo detallado de cómo emerge la geometría a partir del entrelazamiento en el caso general; la extensión completa a espacios que no son AdS (como el nuestro).</td></tr>
+          <tr><td><span class="badge b-red">Limitaciones conocidas</span></td><td>El ejemplo mejor probado (N=4 SYM) es una teoría con mucha simetría y supersimetría que <strong>no describe la física real</strong> de nuestro universo (el Modelo Estándar no tiene esa supersimetría). AdS/CFT funciona de forma más directa en espacios con curvatura negativa (AdS), pero nuestro universo observado tiene curvatura aproximadamente positiva o nula a gran escala (de tipo «de Sitter», no «Anti-de Sitter»).</td></tr>
+          <tr><td><span class="badge b-purple">¿Describe directamente nuestro universo?</span></td><td>No de forma directa ni literal. Es una herramienta y un marco conceptual extraordinariamente fértil, pero el caso mejor establecido corresponde a un universo con propiedades distintas al nuestro (5 dimensiones, curvatura negativa, alta supersimetría).</td></tr>
+          <tr><td><span class="badge b-purple">Relación con nuestro universo cosmológico</span></td><td>Existen intentos activos de investigación (dS/CFT y otras propuestas) para extender ideas similares a espacios tipo de Sitter (más parecidos al nuestro), pero son mucho menos maduros y más especulativos que AdS/CFT.</td></tr>
+          <tr><td><span class="badge b-amber">Problemas abiertos</span></td><td>Prueba matemática general; extensión a gravedad realista (nuestro universo); mecanismo detallado de emergencia del espacio-tiempo; resolución completa de la paradoja de la información en todos sus detalles.</td></tr>
+          <tr><td><span class="badge b-red">¿Por qué NO equivale a «hemos demostrado que vivimos en un holograma»?</span></td><td>AdS/CFT es una equivalencia demostrada en un contexto matemático muy específico (un universo con 5 dimensiones y curvatura anti-de Sitter, con un contenido de materia particular y altamente supersimétrico) que <strong>no coincide con las propiedades observadas de nuestro universo real</strong>. Es evidencia poderosísima de que las ideas holográficas son correctas <em>en principio</em> y que la gravedad puede ser emergente, pero extrapolar esto a una afirmación literal sobre que «nuestro universo real es un holograma, ya demostrado» va más allá de lo que la física actual puede respaldar con rigor. Es una hipótesis de trabajo extremadamente motivadora, no un hecho establecido sobre nuestro cosmos.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bigquote" style="margin-top:26px">Fin del curso — documento convertido en tutorial HTML interactivo.</div>
+  </div>
+</section>
+
+<!-- ==================== CRÉDITOS ==================== -->
+<section class="page" id="creditos">
+  <div class="wrap page-pad">
+    <header class="sec-head">
+      <div class="sec-icon">✦</div>
+      <div>
+        <span class="phase-badge" style="color:#c084fc;border-color:rgba(168,85,247,.5);background:rgba(168,85,247,.08)">SECCIÓN</span>
+        <h2>Créditos</h2>
+        <p class="sec-sub">Autoría, fecha y propósito de este material.</p>
+      </div>
+    </header>
+
+    <div class="cover-wrap">
+      <svg class="coverSvg" viewBox="0 0 1600 900" role="img"
+           aria-label="Portada animada: disco de Anti-de Sitter con la red de entrelazamiento, agujero negro central y el diccionario de la dualidad AdS5 por S5 equivalente a N igual 4 Super-Yang-Mills">
+        <use href="#coverArt" xlink:href="#coverArt"/>
+      </svg>
+    </div>
+    <p class="cover-cap">El mismo SVG animado de la portada: la correspondencia AdS/CFT en movimiento.</p>
+
+    <div class="cred-card">
+      <p class="rol">Título del tutorial</p>
+      <h3 style="font-size:clamp(1.2rem,3vw,1.7rem)">La Conjetura de Maldacena (Correspondencia AdS/CFT) — Curso completo desde cero</h3>
+      <div class="divider"></div>
+      <p class="rol">Autor</p>
+      <p class="author grad">Rubén Sbarsky</p>
+      <div class="meta-chips" style="margin-top:18px">
+        <span class="meta-chip">📅 Fecha: <b>&nbsp;05/09/2026</b></span>
+        <span class="meta-chip">⏰ Hora: <b>&nbsp;05:48:08</b></span>
+      </div>
+      <div class="callout c-info" style="margin-top:20px;text-align:left">
+        <span class="tag">🎓 INDICACIÓN EDUCATIVA</span>
+        <p>Este tutorial ha sido elaborado con fines exclusivamente educativos y de divulgación científica, para facilitar la comprensión de la correspondencia AdS/CFT desde cero, sin necesidad de conocimientos previos avanzados.</p>
+      </div>
+      <p class="latin">Fiat iustitia, ruat caelum.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <p>📚 Tutorial solo con fines Educativos y Divulgación</p>
+  <p>👨‍💻 Créditos: Rubén Sbarsky</p>
+  <p>📅 FECHA: 05/09/2026 &nbsp;·&nbsp; Hora: 05:48:08</p>
+  <p class="latin">Fiat iustitia, ruat caelum.</p>
+</footer>
+
+<button id="toTop" aria-label="Volver arriba">↑</button>
+
+<script>
+(function(){
+  var $$ = function(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  var pages = $$('.page');
+  var navBtns = $$('.nav-btn');
+  var bar = document.getElementById('progressBar');
+  var toTop = document.getElementById('toTop');
+
+  /* ---------- navegación SPA ---------- */
+  function restartCover(){
+    /* reinicia las animaciones SMIL de las portadas al entrar en HOME o CRÉDITOS */
+    $$('.coverSvg').forEach(function(sv){ try{ sv.setCurrentTime(0); }catch(e){} });
+  }
+  function show(id){
+    pages.forEach(function(p){ p.classList.toggle('active', p.id === id); });
+    navBtns.forEach(function(b){ b.classList.toggle('active', b.dataset.nav === id); });
+    var ab = document.querySelector('.nav-btn[data-nav="' + id + '"]');
+    if(ab && ab.scrollIntoView){ try{ ab.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'}); }catch(e){} }
+    window.scrollTo(0, 0);
+    if(id === 'home' || id === 'creditos'){ restartCover(); }
+    updateBar();
+  }
+  navBtns.forEach(function(b){ b.addEventListener('click', function(){ show(b.dataset.nav); }); });
+
+  /* ---------- barra de progreso ---------- */
+  function updateBar(){
+    var d = document.documentElement;
+    var max = d.scrollHeight - d.clientHeight;
+    var st = window.scrollY || d.scrollTop || document.body.scrollTop || 0;
+    bar.style.width = (max > 0 ? (st / max) * 100 : 0) + '%';
+    toTop.classList.toggle('show', st > 420);
+  }
+  window.addEventListener('scroll', updateBar, {passive:true});
+  window.addEventListener('resize', updateBar);
+  updateBar();
+
+  /* ---------- volver arriba ---------- */
+  toTop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+
+  /* ---------- acordeones ---------- */
+  $$('.acc-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var acc = btn.parentElement;
+      var panel = btn.nextElementSibling;
+      var open = acc.classList.toggle('open');
+      panel.style.maxHeight = open ? panel.scrollHeight + 'px' : '0px';
+    });
+  });
+
+  /* ---------- tabs ---------- */
+  $$('.tab-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var group = btn.closest('.tabs');
+      group.querySelectorAll('.tab-btn').forEach(function(x){ x.classList.toggle('active', x === btn); });
+      group.querySelectorAll('.tab-panel').forEach(function(x){ x.classList.toggle('active', x.dataset.panel === btn.dataset.tab); });
+    });
+  });
+
+  /* ---------- accesibilidad: prefers-reduced-motion ---------- */
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    $$('svg').forEach(function(sv){ try{ if(sv.pauseAnimations){ sv.pauseAnimations(); } }catch(e){} });
+  }
+})();
+</script>
+</body>
+</html>
